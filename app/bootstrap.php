@@ -133,9 +133,10 @@ class bootstrap {
 
 	// do only once and save result in APC cache
 	private function _loadConfig() {
+		$aHash = md5($this->ctn['pathApp']); // no need secure
 
 		// try to load from cache
-		$cfg = $this->cache->get("config");
+		$cfg = $this->cache->get("config_$aHash");
 		if($cfg['site']) {
 			$this->ctn['config'] = $cfg;
 			return true;
@@ -147,7 +148,7 @@ class bootstrap {
 			$content = file_get_contents($file);
 			$config = json_decode($content, true);
 			if($config['site']) {
-				$this->cache->set('config', $config);
+				$this->cache->set("config_$aHash", $config);
 				$this->ctn['config'] = $config;
 				return true;
 			} else {
