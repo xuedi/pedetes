@@ -13,9 +13,9 @@ class model {
 
 	function __construct($ctn) {
 
-        // get pebug
-        $this->pebug = pebug::Instance();
-        $this->pebug->log("model::__construct()");
+		// get pebug
+		$this->pebug = pebug::Instance();
+		$this->pebug->log("model::__construct()");
 
 		// container itself
 		$this->ctn = $ctn;
@@ -36,18 +36,18 @@ class model {
 		//
 	}
 
-    // basic load an object return, on demand, not on event/location
-    public function loadModel($name) {
-        $this->pebug->log("controller::loadModel($name)");
-        $path = $this->ctn['config']['path']['base'];
-        $path .= $this->ctn['config']['path']['model'];
-        $path .= $name.'_model.php';
-        if(file_exists($path)) {
-            require_once($path);
-            $model = '\Pedetes\\'.$name . '_model';
-            return new $model($this->ctn);
-        } else $this->pebug->error("controller::loadModel($name): File does not exist!");
-    }
+	// basic load an object return, on demand, not on event/location
+	public function loadModel($name) {
+		$this->pebug->log("model::loadModel($name)");
+		$file = $this->ctn['pathApp'];
+		$file .= $this->ctn['config']['path']['model'];
+		$file .= $name.'_model.php';
+		if(file_exists($file)) {
+			require_once($file);
+			$model = '\Pedetes\\'.$name . '_model';
+			return new $model($this->ctn);
+		} else $this->pebug->error("model::loadModel($name): File does not exist!");
+	}
 	
 
 }

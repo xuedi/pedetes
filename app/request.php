@@ -89,7 +89,7 @@ class request {
 			break;
 
 			case "ARRAY":
-				return $this->getArray($value, $default);
+				return $this->getArray($value, $default, $allowEmpty);
 			break;
 
 			default:
@@ -152,7 +152,7 @@ class request {
 	}
 
 
-	private function getArray($req, $default = NULL) {
+	private function getArray($req, $default = NULL, $allowEmpty=false) {
 		$verbose = $this->ctn['config']['debugging'];
 
 		// Check if $default is actually an array, if not, terminate
@@ -163,6 +163,10 @@ class request {
 		foreach($default as $value) {
 			if( $value == $req ) return $req;
 		}
+
+		// empty is legal
+		if($allowEmpty) return '';
+
 		// if no hit trough an exeption
 		$this->pebug->error("request::getArray($req): No Array hit!");
 	}
