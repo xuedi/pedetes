@@ -22,10 +22,25 @@ class database extends PDO {
 
 			// prepare connection
 			$host = $ctn['config']['database']['host'];
+			if(empty($host)) 
+				$this->pebug->error("database::__construct(): No DB-Hostname set ");
+
 			$name = $ctn['config']['database']['name'];
+			if(empty($host)) 
+				$this->pebug->error("database::__construct(): No DB-Name set ");
+
 			$port = $ctn['config']['database']['port'];
+			if(empty($host)) 
+				$this->pebug->error("database::__construct(): No DB-Port set ");
+
 			$user = $ctn['config']['database']['user'];
+			if(empty($host)) 
+				$this->pebug->error("database::__construct(): No DB-User set ");
+
 			$pass = $ctn['config']['database']['pass'];
+			if(empty($host)) 
+				$this->pebug->error("database::__construct(): No DB-Pass set ");
+
 
 			$cfg = "mysql:host=$host;port=$port;dbname=$name";
 			$options = array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'");
