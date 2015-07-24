@@ -13,7 +13,7 @@ class view extends smarty_i18n {
         $this->pebug->log( "view::__construct()" );
     }
 
-    public function render( $name, $skipLayout = false ) {
+    public function render( $name, $skipLayout=false, $cache=true ) {
         $base = $this->ctn['pathApp'];
         $view = $this->ctn['config']['path']['view'];
 
@@ -25,7 +25,7 @@ class view extends smarty_i18n {
         $this->assign("uniqueCaller", get_called_class());
 
         // render with all global vars
-        if ( $skipLayout == true ) $this->displayML( $name );
+        if ( $skipLayout == true ) $this->displayML( $name, $cache );
         else {
 
             // check if file exists
@@ -36,7 +36,7 @@ class view extends smarty_i18n {
             $this->assign( "tplContent", $name );
 
             // display the whole page
-            $this->displayML( "layout/main.tpl" );
+            $this->displayML( "layout/main.tpl", $cache );
 
         }
 

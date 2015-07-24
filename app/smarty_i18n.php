@@ -27,24 +27,25 @@ class smarty_i18n extends Smarty {
 		$base = $this->ctn['pathApp'];
 		$temp = $this->ctn['config']['path']['temp'];
 		$view = $this->ctn['config']['path']['view'];
-
 		$this->setTemplateDir($base.$view);
 		$this->setCompileDir($base.$temp.'smarty');
 		$this->setConfigDir($base.$temp.'smarty');
 		$this->setCacheDir($base.$temp.'smarty');
 
+		// smarty internal settings
+		$this->caching = Smarty::CACHING_OFF;
+		$this->force_compile = true;
+
 		// debugging
 		if($this->ctn['config']['debugging']) {
-			$this->caching = Smarty::CACHING_OFF;
-			$this->force_compile = true;
 			$this->debugging = true;
-		} else $this->caching = true;
+		}
 	
 	}
 
 
 	
-	function loadMLFilter($file) {
+	function loadMLFilter($file, $caching = true) {
 		$retVal = "";
 		$this->pebug->log( "smarty_i18n::loadMLFilter()" );
 
@@ -74,19 +75,31 @@ class smarty_i18n extends Smarty {
 			} else $this->pebug->error( "smarty_i18n::loadMLFilter($file): File does not exist [$cache_file]" );
 		} else $this->pebug->error( "smarty_i18n::loadMLFilter($file): Language is not set!" );
 
+		// do caching
+		if($this->ctn['config']['caching'] && $caching) {
+			$upid = $this->ctn['upid'];
+			$cache = $this->ctn['cache'];
+			if($cache->exist($upid)) {
+				$cache->delete($upid);
+			}
+			$data = serialize($retVal);
+			$time = $this->ctn['config']['caching'];
+			$cache->set($upid, $data, $time);
+		}
+
 		return $retVal;
 	}
 
 
 	
-	function displayML($file) {
-		echo $this->loadMLFilter($file);
+	function displayML($file, $caching) {
+		echo $this->loadMLFilter($file, $caching);
 	}
 
 
 	
-	function fetchML($file) {
-		return $this->loadMLFilter($file);
+	function fetchML($file, $caching) {
+		return $this->loadMLFilter($file, $caching);
 	}
 		
 }

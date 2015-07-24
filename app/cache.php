@@ -9,13 +9,23 @@ class cache {
     }
 
 
+    public function delete($name) {
+        apc_delete($name);
+    }
+
+
+    public function exist($name) {
+        return apc_exists($name);
+    }
+
+
     public function get($name) {
         return apc_fetch($name);
     }
 
 
-    public function set($name, $value) {
-        apc_store($name, $value);
+    public function set($name, $value, $ttl=0) {
+        apc_store($name, $value, $ttl);
         return true;
     }
 

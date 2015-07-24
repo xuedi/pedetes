@@ -9,8 +9,11 @@ class bootstrap {
 	var $pebug;
 	var $request;
 
+	private $_fc = false;
 	private $_url = null;
 	private $_host = null;
+	private $_callHash = null;
+	private $_appHash = null;
 	private $_controller = null;
 	
 	// Always include trailing slash
@@ -21,6 +24,9 @@ class bootstrap {
 	
 
 	function __construct($ctn) {
+
+		// generate app hash
+		$this->_appHash = md5($ctn['pathApp']);
 
 		// get pebug
 		$this->pebug = pebug::Instance();
@@ -54,6 +60,9 @@ class bootstrap {
 		// Sets the protected $_url
 		$this->_getUrl();
 
+		// If caching is enabled break here and deliver
+		$this->_checkCache();
+
 		// execute stuff
 		$this->_loadController();
 		$this->_callControllerMethod();
@@ -64,12 +73,19 @@ class bootstrap {
 		
 
 	private function _getUrl() {
+		$url = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : null;
+
+		// check if clearCache flag is set
+		if(substr($url,-3)=='~FC') {
+			$url = substr($url, 0, -3);
+			$this->_fc = true;
+		}
 
 		// build url array
-		$url = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : null;
 		$url = strtok($url, '?'); // cut off parameters
 		$url = trim($url, '/');
 		$url = filter_var($url, FILTER_SANITIZE_URL);
+		$this->_callHash = md5($url); // remember caller
 		$this->_url = explode('/', $url);
 
 		// Default controller
@@ -133,10 +149,9 @@ class bootstrap {
 
 	// do only once and save result in APC cache
 	private function _loadConfig() {
-		$aHash = md5($this->ctn['pathApp']); // no need secure
 
 		// try to load from cache
-		$cfg = $this->cache->get("config_$aHash");
+		$cfg = $this->cache->get($this->_appHash."_config");
 		if($cfg['site']) {
 			$this->ctn['config'] = $cfg;
 			return true;
@@ -148,7 +163,7 @@ class bootstrap {
 			$content = file_get_contents($file);
 			$config = json_decode($content, true);
 			if($config['site']) {
-				$this->cache->set("config_$aHash", $config);
+				$this->cache->set($this->_appHash."_config", $config);
 				$this->ctn['config'] = $config;
 				return true;
 			} else {
@@ -160,6 +175,28 @@ class bootstrap {
 
 		// give up when no config found
 		$this->pebug->error("Bootstrap::_loadConfig(): Could not load config: $file");
+	}
+
+
+	// check for hard caches and deliver
+	private function _checkCache() {
+
+		// generate uniquePage id for later caching
+		$upid = $this->_appHash."_".$this->_callHash;
+		$this->ctn['upid'] = $upid;
+
+		// when caching is enabled lets go
+		if($this->ctn['config']['caching']) {
+			if($this->cache->exist($upid)) {
+				if($this->_fc) { // flush cash
+					$this->cache->delete($upid);
+				} else {
+					$page = $this->cache->get($upid);
+					echo unserialize($page);
+					die(); // job done
+				}
+			}
+		}
 	}
 
 }
