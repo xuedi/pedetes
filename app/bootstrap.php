@@ -73,20 +73,20 @@ class bootstrap {
 		
 
 	private function _getUrl() {
-		$url = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : null;
-
-		// check if clearCache flag is set
-		if(substr($url,-3)=='~FC') {
-			$url = substr($url, 0, -3);
-			$this->_fc = true;
-		}
 
 		// build url array
+		$url = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : null;
 		$url = strtok($url, '?'); // cut off parameters
 		$url = trim($url, '/');
 		$url = filter_var($url, FILTER_SANITIZE_URL);
 		$this->_callHash = md5($url); // remember caller
 		$this->_url = explode('/', $url);
+
+		// flush cache if wished for
+		if(strtolower($this->_url[0])=='fc') {
+			array_shift( $this->_url );
+			$this->_fc = true;
+		}
 
 		// Default controller
 		if(empty($this->_url[0])) $this->_url[0] = "index";

@@ -4,6 +4,7 @@ namespace Pedetes;
 class view extends smarty_i18n {
 
     var $pebug;
+    var $noCaching=false;
 
     function __construct($ctn) {
         parent::__construct($ctn);
@@ -14,6 +15,8 @@ class view extends smarty_i18n {
     }
 
     public function render( $name, $skipLayout=false, $cache=true ) {
+        if($noCaching) $cache = false;
+
         $base = $this->ctn['pathApp'];
         $view = $this->ctn['config']['path']['view'];
 
