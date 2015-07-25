@@ -44,10 +44,22 @@ class model {
 		$file .= $name.'_model.php';
 		if(file_exists($file)) {
 			require_once($file);
-			$model = '\Pedetes\\'.$name . '_model';
+			$model = "\Pedetes\\{$name}_model";
 			return new $model($this->ctn);
-		} else $this->pebug->error("model::loadModel($name): File does not exist!");
+		} else $this->pebug->error("model::loadModel($name): File does not exist! [$file]");
 	}
-	
+
+	// basic load an object return, on demand, not on event/location
+	public function loadCoreModel($name) {
+		$this->pebug->log("model::loadModel($name)");
+		$file = $this->ctn['pathLib'];
+		$file .= "app/core/";
+		$file .= 'core_'.$name.'_model.php';
+		if(file_exists($file)) {
+			require_once($file);
+			$model = "\Pedetes\\core\\core_{$name}_model";
+			return new $model($this->ctn);
+		} else $this->pebug->error("model::loadCoreModel($name): File does not exist! [$file]");
+	}
 
 }
