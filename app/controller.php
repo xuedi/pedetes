@@ -33,15 +33,35 @@ class controller {
 
 
 	// basic load an object return, on demand, not on event/location
-	public function loadModel($name) {
+	public function loadModel($name) { //TODO use '...' operator PHP 5.6
 		$this->pebug->log("controller::loadModel($name)");
+
+		// dynamic number of arguments
+		$args = func_get_args();
+		array_shift($args);
+
+		// load file
 		$file = $this->ctn['pathApp'];
 		$file .= $this->ctn['config']['path']['model'];
 		$file .= $name.'_model.php';
 		if(file_exists($file)) {
 			require_once($file);
 			$model = '\Pedetes\\'.$name . '_model';
-			return new $model($this->ctn);
+			//TODO: dynamic via loop or else
+			switch(count($args)) {
+				case 1:
+					return new $model($this->ctn, $args[0]);
+				break;
+				case 2:
+					return new $model($this->ctn, $args[0], $args[1]);
+				break;
+				case 3:
+					return new $model($this->ctn, $args[0], $args[1], $args[2]);
+				break;
+				default:
+					return new $model($this->ctn);
+				break;
+			}
 		} else $this->pebug->error("controller::loadModel($name): File does not exist!");
 	}
 
