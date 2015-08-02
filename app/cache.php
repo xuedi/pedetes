@@ -10,22 +10,38 @@ class cache {
 
 
     public function delete($name) {
-        apc_delete($name);
+        if($this->ctn['config']['caching']) {
+            apc_delete($name);
+        } else {
+            unset($_SESSION[$name]);
+        }
     }
 
 
     public function exist($name) {
-        return apc_exists($name);
+        if($this->ctn['config']['caching']) {
+            return apc_exists($name);
+        } else {
+            return isset($_SESSION[$name]);
+        }
     }
 
 
     public function get($name) {
-        return apc_fetch($name);
+        if($this->ctn['config']['caching']) {
+            return apc_fetch($name);
+        } else {
+            return $_SESSION[$name];
+        }
     }
 
 
     public function set($name, $value, $ttl=0) {
-        apc_store($name, $value, $ttl);
+        if($this->ctn['config']['caching']) {
+            apc_store($name, $value, $ttl);
+        } else {
+            $_SESSION[$name] = $value;
+        }
         return true;
     }
 
