@@ -62,4 +62,13 @@ class model {
 		} else $this->pebug->error("model::loadCoreModel($name): File does not exist! [$file]");
 	}
 
+	// collected usefull mini methods
+	public function _isGuid($guid) {
+		if(preg_match('/^\{?[A-Z0-9]{8}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{12}\}?$/', $guid)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 }
