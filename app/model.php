@@ -70,5 +70,8 @@ class model {
 			return false;
 		}
 	}
+	private function _stripGuid($guid) {
+		return str_replace(array('{','}'), array('',''), $guid);
+	}
 
 }
