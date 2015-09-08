@@ -10,6 +10,7 @@ class model {
 	var $mem;
 	var $pebug;
 	var $request;
+	var $data;
 
 	function __construct($ctn) {
 
@@ -28,6 +29,9 @@ class model {
 
 		// session module
 		$this->mem = $ctn['session'];
+
+		// dummy data
+		$data = array();
 
 	}
 
@@ -72,6 +76,15 @@ class model {
 	}
 	public function _stripGuid($guid) {
 		return str_replace(array('{','}'), array('',''), $guid);
+	}
+	public function get($name) {
+		return $this->data[$name];
+	}
+	public function set($name, $value) {
+		$this->data[$name] = $value;
+	}
+	public function getAll() {
+		return $this->data;
 	}
 
 }
