@@ -28,19 +28,14 @@ class smarty_i18n extends Smarty {
 		$temp = $this->ctn['config']['path']['temp'];
 		$view = $this->ctn['config']['path']['view'];
 		$this->setTemplateDir($base.$view);
-		$this->setCompileDir($base.$temp.'smarty');
-		$this->setConfigDir($base.$temp.'smarty');
-		$this->setCacheDir($base.$temp.'smarty');
+		$this->setCompileDir($base.$temp.'smarty_compiled');
+		$this->setConfigDir($base.$temp.'smarty_config');
+		$this->setCacheDir($base.$temp.'smarty_cache');
 
 		// smarty internal settings
 		$this->caching = Smarty::CACHING_OFF;
-		$this->force_compile = true;
+//		$this->force_compile = false;
 
-		// debugging
-		if($this->ctn['config']['debugging']) {
-			$this->debugging = true;
-		}
-	
 	}
 
 
