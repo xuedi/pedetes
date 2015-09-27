@@ -105,9 +105,15 @@ class bootstrap {
 			require_once $file;
 			$this->_controller = new $this->_url[0]($this->ctn);
 		} else {
-
-			// fail to load controller
-			$this->pebug->error("Bootstrap::_loadController(): Controller does not exist: ");
+			$file = $this->ctn["pathApp"]. $this->_controllerPath . 'errorHandler' . '.php';
+			if(file_exists($file)) {
+				require_once $file;
+				//$this->_controller = new errorHandler($this->ctn, 404);
+				$this->_url[0] = 'errorHandler'; //TODO: why does prev line does not work O_o
+				$this->_controller = new $this->_url[0]($this->ctn, 404);
+			} else {
+				$this->pebug->error("Bootstrap::_loadController(): Controller does not exist: ");
+			}
 		}
 		$this->pebug->log( "bootstrap::_loadController()" );
 	}
