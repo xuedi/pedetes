@@ -2,6 +2,7 @@
 namespace Pedetes;
 
 use \PDO;
+use \Mobile_Detect;
 
 class model {
 
@@ -86,5 +87,8 @@ class model {
 	public function getAll() {
 		return $this->data;
 	}
-
+	public function isMobile() {
+		$detect = new Mobile_Detect;
+		return $detect->isMobile();
+	}
 }
