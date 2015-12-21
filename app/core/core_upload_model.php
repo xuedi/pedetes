@@ -86,14 +86,18 @@ class core_upload_model extends \Pedetes\model {
 				}
 			}
 
-			// get imagelist independent of action
+			// get imagelist independent of action (only 'orig' and type)
 			$files = array();
 			if($handle = opendir($path)) {
 				while(false!==$entry=readdir($handle)) {
 					$strLen = 1+strLen($name);
 					if(substr($entry, 0, $strLen)=="$name"."_") {
-						$files[] = $entry;
-						$flag=1;
+						$entryParts = explode('_', $entry);
+						if('orig'==substr($entryParts[2], 0, 4)) {
+							$tmpHash = $entryParts[1];
+							$files[$tmpHash] = explode('.', $entryParts[2])[1];
+							$flag=1;
+						}
 					}
 				}
 				closedir($handle);
