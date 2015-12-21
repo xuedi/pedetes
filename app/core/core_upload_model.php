@@ -111,7 +111,7 @@ class core_upload_model extends \Pedetes\model {
 
 
 
-	private function imageResize($inputFileName, $maxSize = 100) {
+	public function imageResize($inputFileName, $maxSize = 100) {
 		$info = getimagesize($inputFileName);
  		$type = isset($info['type']) ? $info['type'] : $info[2];
  
@@ -153,7 +153,7 @@ class core_upload_model extends \Pedetes\model {
 	}
 
 
-	private function imageChop($inputFileName, $size = 100) {
+	public function imageChop($inputFileName, $size = 100) {
 		$info = getimagesize($inputFileName);
  		$type = isset($info['type']) ? $info['type'] : $info[2];
  
@@ -199,7 +199,7 @@ class core_upload_model extends \Pedetes\model {
 	}
 
 
-	function imageToFile($im, $fileName, $quality = 80) {
+	public function imageToFile($im, $fileName, $quality = 80) {
 		if( !$im || file_exists($fileName) ) {
 		   return false;
 		}

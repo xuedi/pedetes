@@ -65,6 +65,18 @@ class controller {
 		} else $this->pebug->error("controller::loadModel($name): File does not exist!");
 	}
 
+	// basic load an object return, on demand, not on event/location //TODO-2 same as model, merge
+	public function loadCoreModel($name) {
+		$this->pebug->log("controller::loadCoreModel($name)");
+		$file = $this->ctn['pathLib'];
+		$file .= "app/core/";
+		$file .= 'core_'.$name.'_model.php';
+		if(file_exists($file)) {
+			require_once($file);
+			$model = "\Pedetes\\core\\core_{$name}_model";
+			return new $model($this->ctn);
+		} else $this->pebug->error("controller::loadCoreModel($name): File does not exist! [$file]");
+	}
 
 	// get basic data (layout) data
 	function loadLayout() {

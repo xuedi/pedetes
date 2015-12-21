@@ -56,7 +56,7 @@ class model {
 
 	// basic load an object return, on demand, not on event/location
 	public function loadCoreModel($name) {
-		$this->pebug->log("model::loadModel($name)");
+		$this->pebug->log("model::loadCoreModel($name)");
 		$file = $this->ctn['pathLib'];
 		$file .= "app/core/";
 		$file .= 'core_'.$name.'_model.php';
