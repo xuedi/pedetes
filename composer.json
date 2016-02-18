@@ -10,7 +10,8 @@
     "require": {
         "pimple/pimple": "~3.0",
         "smarty/smarty": "~3.1",
-        "mobiledetect/mobiledetectlib": "^2.8"
+        "mobiledetect/mobiledetectlib": "^2.8",
+        "phpmailer/phpmailer": "~5.2"
     },
     "autoload": {
         "psr-4": {
