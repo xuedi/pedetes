@@ -7,6 +7,7 @@ use PHPMailer;
 class core_email_model extends \Pedetes\model {
 
 	var $body;
+	var $cc;
 	var $subject;
 	var $address;
 	var $from;
@@ -33,6 +34,7 @@ class core_email_model extends \Pedetes\model {
 		$mail->Port = $this->smtp['port'];
 		$mail->setFrom($this->from);
 		$mail->addAddress($this->address);
+		if($mail->cc) $mail->addCC($mail->cc);
 		$mail->Subject = $this->subject;
 		$mail->Body    = $this->body;
 		$mail->send();
