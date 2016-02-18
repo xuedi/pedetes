@@ -34,7 +34,7 @@ class core_email_model extends \Pedetes\model {
 		$mail->Port = $this->smtp['port'];
 		$mail->setFrom($this->from);
 		$mail->addAddress($this->address);
-		if($mail->cc) $mail->addCC($mail->cc);
+		if($this->cc) $mail->addCC($this->cc);
 		$mail->Subject = $this->subject;
 		$mail->Body    = $this->body;
 		$mail->send();
