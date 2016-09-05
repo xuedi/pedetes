@@ -31,6 +31,9 @@ class model {
 		// session module
 		$this->mem = $ctn['session'];
 
+		// cache module
+		$this->cache = $ctn['cache'];
+
 		// dummy data
 		$data = array();
 

@@ -21,8 +21,12 @@ class session {
 
 
     public function setIfNot($name, $value) {
-        if(!isset($_SESSION[$name])) $this-> set($name, $value);
+        if(!isset($_SESSION[$name])) $this->set($name, $value);
     }
 
+    public function getOrSet($name, $value) {
+        if(!isset($_SESSION[$name])) $this->set($name, $value);
+        return $this->get($name); // got it for sure now
+    }
 
 }

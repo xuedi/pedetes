@@ -12,6 +12,7 @@ class core_i18n_model extends \Pedetes\model {
 	}
 
 	public function getLanguages($lang) {
+		if(empty($lang)) $this->pebug->error( "core_i18n_model::getLanguages($lang): No language parameter given!" );
 		$sql = "SELECT l.language, lt.name, lt.native FROM languages l
 				LEFT JOIN languages_translation lt ON l.language = lt.translation
 				WHERE lt.language = :language
