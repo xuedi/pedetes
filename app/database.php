@@ -52,6 +52,17 @@ class database extends PDO {
 		} 
 	}
 
+	public function raw($sql, $array = array()) {
+		$sth = $this->prepare($sql);
+		if(isset($array)) {
+			foreach ($array as $key => $value) {
+				$sth->bindValue("$key", $value);
+			}
+		}
+		$sth = $this->_execute($sth);
+		return true;
+	}
+
 	public function filterField($data, $field) {
 		$retVal = array();
 		foreach($data as $value) {
@@ -70,6 +81,29 @@ class database extends PDO {
 		}
 		$sth = $this->_execute($sth);
 		$retVal = $sth->fetchAll($fetchMode);
+		return $retVal;
+	}
+
+	// expects a list of 2 pairs once has to be an ID like field (for option values)
+	public function selectList($sql, $array = array(), $id='id') {
+		$retVal = array();
+		$array = $this->select($sql, $array, PDO::FETCH_ASSOC);
+		if(isset($array)) {
+			foreach ($array as $key => $value) {
+				$data = $value;
+				unset($data[$id]);
+				if(count($data)!=1) die('database::selectList: expect only 2 fields!');
+				$retVal[$value[$id]] = current($data);
+			}
+		}
+		return $retVal;
+	}
+
+	// change array's index to valus 'id'
+	public function selectChildArray($sql, $para = array(), $id='id') {
+		$retVal = array();
+		$data = $this->select($sql, $para, PDO::FETCH_ASSOC);
+		foreach($data as $value) $retVal[$value[$id]] = $value;
 		return $retVal;
 	}
 
