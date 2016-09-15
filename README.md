@@ -8,6 +8,8 @@ Usually, the pedetes folder is somewhere else than the public http docs. I do us
  - curl -sS https://getcomposer.org/installer | php
  - ./composer.phar update
 
+ A refernece implementation can be found here: https://github.com/xuedi/pedetes-www
+
 ## privacy warning
 
 The caching option uses APCu user cache, if you run on shared hosting, either disable caching or make sure each page has its private APCu caching pool (via own CGI instance). To clear a pages cache, just add '~FC' at the end of the url.
