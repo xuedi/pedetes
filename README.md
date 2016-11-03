@@ -8,7 +8,7 @@ Of course every path can be adjusted like you with when you install manualy, for
 
 ### requirements
  - Linux / Unix
- - PHP 7+
+ - PHP 7+ (Optional: APCu extention)
  - Nginx / Apache
  - bower (or manual assets)
 
