@@ -5,16 +5,6 @@ use \PDO;
 
 class install {
 
-
-	function getPdo($host, $user, $pass, $name, $port) {
-		try {
-			$conn = new pdo('mysql:host='.$host.':'.$port.';dbname='.$name, $user, $pass);
-		} catch (\PDOException $e) {
-			return false;
-		}
-		return $conn;
-	}
-
 	public function install($ctn) {
 		if(!$ctn['config']['installed']) {
 			$msg = "";
@@ -37,12 +27,9 @@ class install {
 				$config['site'] = preg_replace("/[^0-9a-zA-Z_\s]+/", "", $_REQUEST['url']);
 				$config['salt'] = md5(time().rand(10, 20));
 
-				// test database (with new parameters)
-				// get object first try and reuse later .... merge
-				$db = $this->getPdo($_REQUEST['db_host'], $_REQUEST['db_user'], $_REQUEST['db_pass'], $_REQUEST['db_name'], $_REQUEST['db_port']);
-				if($db===false) {
-					$msg = "Can't connect to DB";
-				} else {
+				// connect to database (with new parameters)
+				try {
+					$db = new pdo('mysql:host='.$_REQUEST['db_host'].':'.$_REQUEST['db_port'].';dbname='.$_REQUEST['db_name'], $_REQUEST['db_user'], $_REQUEST['db_pass']);
 
 					// install mysql structure
 					$structureFile = $ctn['pathApp']."database.sql";
@@ -65,7 +52,10 @@ class install {
 						apcu_clear_cache();
 						header("Location: /");
 					}
+				} catch (\PDOException $e) {
+					$msg = $e->getMessage();
 				}
+
 			}
 
 
