@@ -1,5 +1,8 @@
 <?php
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
+ini_set("html_errors", 1); 
+ini_set("error_prepend_string", "<pre style='color: #333; font-face:monospace; font-size:12pt;'>"); 
+ini_set("error_append_string ", "</pre>"); 
 
 
 // get the locations right
