@@ -1,15 +1,6 @@
 <?php
 namespace Pedetes;
 
-function dbg($data, $die=false) {
-    $backtrace = debug_backtrace();
-    echo "<pre style='border: 2px solid black; margin: 10px; padding: 7px; '>";
-    echo "<b>dbg</b> called from '".$backtrace[0]['file']."' line: ".$backtrace[0]['line']."<br>";
-    echo "<pre style='background-color: #eee; padding: 7px; '>".print_r($data,true)."</pre>";
-    echo "</pre>";
-    if($die) die();
-}
-
 class bootstrap {
 
 	var $ctn;
