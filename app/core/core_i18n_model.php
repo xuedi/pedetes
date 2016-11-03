@@ -145,6 +145,14 @@ class core_i18n_model extends \Pedetes\model {
 		}
 	}
 
+	// search for unused translations and clean them out of the DB
+	public function clean() {
+		$this->search();
+		$sth = $this->db->prepare("DELETE FROM i18n_translation WHERE ukey NOT IN (SELECT ukey FROM i18n)");
+		$sth->execute();
+		$this->publish();
+	}
+
 
 /********/
 
