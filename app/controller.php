@@ -29,6 +29,9 @@ class controller {
 
 		// request object
 		$this->request = $this->ctn['request']; 
+
+		// check if install is needed
+		$this->install($ctn);
 	}
 
 
@@ -129,6 +132,13 @@ class controller {
 		return true;
 	}
    
+	private function install($ctn) {
+		if(!$ctn['config']['installed']) {
+			$tmp = new install;
+			$tmp->install($ctn);
+			die();
+		}
+	}
 
 
 }
