@@ -134,6 +134,18 @@ class core_i18n_model extends \Pedetes\model {
 	}
 
 
+	public function saveForm($lang) {
+		if($lang!="") {
+			foreach($_REQUEST as $key => $value) {
+				if(substr($key,0,5)=="ukey_" && $value != "") {
+					$key = substr($key,5);
+					$this->setTranslation($lang, $key, $value);
+				}
+			}
+		}
+	}
+
+
 /********/
 
 
