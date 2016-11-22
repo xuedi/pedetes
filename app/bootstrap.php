@@ -82,6 +82,11 @@ class bootstrap {
 		$this->_callHash = md5($url); // remember caller
 		$this->_url = explode('/', $url);
 
+		// full path after controller
+		$full = explode('/', $url);
+		array_shift($full);
+		$this->_url['full'] = implode('/', $full);
+
 		// flush cache if wished for
 		if(strtolower($this->_url[0])=='fc') {
 			array_shift( $this->_url );
