@@ -31,7 +31,8 @@ class core_wordpress_model extends \Pedetes\model {
 					$retVal = array();
 					$retVal['url'] = $wp_post->post_name;
 					$retVal['title'] = $wp_post->post_title;
-					$retVal['content'] = $wp_post->post_content;
+					$retVal['content'] = $this->_wpMod($wp_post->post_content);
+					$retVal['links'] = $this->_getLinks($id);
 					return $retVal;		
 				}
 			}
@@ -51,7 +52,7 @@ class core_wordpress_model extends \Pedetes\model {
 				$tags = wp_get_post_tags($wp_post->ID);
 				foreach($tags as $tag) {
 					if($tag->name=='top') return $id;
-				}	
+				}
 			}
 			if(!empty($id)) return $id; // Backup, random one
 		}
@@ -61,13 +62,36 @@ class core_wordpress_model extends \Pedetes\model {
 
 	// loads specific post by url
 	private function _getPostByUrl($url) {
-		dbg('get url');
 		require($this->wp);
-		$wp_posts = get_posts();
-		foreach($wp_posts as $wp_post) {
-			if($wp_post->name==$url) return $wp_post->ID;
+		$query = array('name'=>$url,'post_type'=>'post','post_status'=>'publish','posts_per_page'=>1);
+		$posts = get_posts($query);
+		if(!empty($posts)) return $posts[0]->ID;
+		else return 0;
+	}
+
+
+	// get links for posts from the same category
+	private function _getLinks($id) {
+		require($this->wp);
+		$retVal = array();
+		$posts = get_posts(array('category__in' => wp_get_post_categories($id)));
+		foreach( $posts as $post ) {
+			setup_postdata($post);
+			$retVal[] = array(
+				'id' => $post->ID,
+				'date' => $post->post_date,
+				'link' => $post->post_name,
+				'title' => $post->post_title,
+				'active' => ($post->ID == $id) ? 1 : 0
+				);
 		}
 		return $retVal;
+	}
+
+
+	// add structure elements
+	private function _wpMod($post) {
+		return '<p>'.str_replace("\n", '</p><p>', $post).'</p>';
 	}
 
 
