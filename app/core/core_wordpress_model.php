@@ -70,6 +70,7 @@ class core_wordpress_model extends \Pedetes\model {
 			$retVal['links'] = $this->_getLinks($id);
 			return $retVal;		
 		}
+		return null;
 	}
 
 
@@ -97,7 +98,7 @@ class core_wordpress_model extends \Pedetes\model {
 			}
 			if(!empty($id)) return $id; // Backup, random one
 		}
-		$this->_trough404('_getPostByCategory: No category found');
+		return null;
 	}
 
 
@@ -106,7 +107,7 @@ class core_wordpress_model extends \Pedetes\model {
 		$query = array('name'=>$url,'post_type'=>'post','post_status'=>'publish','posts_per_page'=>1);
 		$posts = get_posts($query);
 		if(!empty($posts)) return $posts[0]->ID;
-		$this->_trough404('_getPostByCategory: No category found');
+		return null;
 	}
 
 
@@ -142,12 +143,6 @@ class core_wordpress_model extends \Pedetes\model {
 	// add structure elements
 	private function _wpMod($post) {
 		return '<p>'.str_replace("\n", '</p><p>', $post).'</p>';
-	}
-
-
-	// should be pdebug
-	private function _trough404($msg=null) {
-		dbg('Blog: 404 --> '.$msg);
 	}
 
 
