@@ -68,6 +68,7 @@ class core_wordpress_model extends \Pedetes\model {
 			$retVal['title'] = $wp_post->post_title;
 			$retVal['content'] = $this->_wpMod($wp_post->post_content);
 			$retVal['links'] = $this->_getLinks($id);
+			$retVal['cloud']= $this->_getTagCould();
 			return $retVal;		
 		}
 		return null;
@@ -81,7 +82,8 @@ class core_wordpress_model extends \Pedetes\model {
 
 	// get top entry out of the category
 	private function _getPostByCategory($category) {
-		$cid = get_category_by_slug($category)->term_id ?? false;
+		$cid = get_category_by_slug($category)->term_id; // ?? update to PHP 7.1
+		if(!isset($cid)) $cid = false;
 		if($cid) {
 			$query = array(
 				'numberposts' => 1000,
@@ -119,7 +121,6 @@ class core_wordpress_model extends \Pedetes\model {
 
 
 
-	// get links for posts from the same category
 	private function _getLinks($id) {
 		$retVal = array();
 		$posts = get_posts(array('category__in' => wp_get_post_categories($id)));
@@ -140,13 +141,41 @@ class core_wordpress_model extends \Pedetes\model {
 	}
 
 
-	// add structure elements
+	private function _getTagCould() {
+		$retVal = array();
+		$args = array(
+			'smallest'                  => 12, 
+			'largest'                   => 18,
+			'unit'                      => 'pt', 
+			'number'                    => 45,  
+			'format'                    => 'array',
+			'separator'                 => "\n",
+			'orderby'                   => 'name', 
+			'order'                     => 'ASC',
+			'exclude'                   => null, 
+			'include'                   => null, 
+			'topic_count_text_callback' => default_topic_count_text,
+			'link'                      => 'view', 
+			'taxonomy'                  => 'post_tag', 
+			'echo'                      => true,
+			'child_of'                  => null, // see Note!
+		);
+		$tags = wp_tag_cloud($args);
+		if($tags) {
+			foreach($tags as $value) {
+				$retVal[] = $value;
+			}
+			return implode(' ', $retVal);
+		}
+		return null;
+	}
+
+
 	private function _wpMod($post) {
 		return '<p>'.str_replace("\n", '</p><p>', $post).'</p>';
 	}
 
 
-	// transform hierarchical
 	private function _hierarchical(array $elements, $parentId = 0) {
 		$branch = array();
 		foreach($elements as $element) {
