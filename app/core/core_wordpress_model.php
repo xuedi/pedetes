@@ -68,7 +68,8 @@ class core_wordpress_model extends \Pedetes\model {
 			$retVal['title'] = $wp_post->post_title;
 			$retVal['content'] = $this->_wpMod($wp_post->post_content);
 			$retVal['links'] = $this->_getLinks($id);
-			$retVal['cloud']= $this->_getTagCould();
+			$retVal['cloud'] = $this->_getTagCould();
+			$retVal['author'] = $this->_getAuthorDetails($wp_post->post_author);
 			return $retVal;		
 		}
 		return null;
@@ -119,6 +120,16 @@ class core_wordpress_model extends \Pedetes\model {
 
 
 
+
+	private function _getAuthorDetails($user_id) {
+		$retVal = array();
+		$retVal['url'] = get_the_author_meta('url', $user_id);
+		$retVal['desc'] = get_the_author_meta('description', $user_id);
+		$retVal['name'] = get_the_author_meta('nicename', $user_id);
+		$retVal['email'] = get_the_author_meta('email', $user_id);
+		$retVal['avatar'] = get_avatar($user_id, 80);
+		return $retVal;
+	}
 
 
 	private function _getLinks($id) {
