@@ -53,43 +53,51 @@ class core_wordpress_model extends \Pedetes\model {
 	}
 
 
-	public function _getContent($category=null, $url=null) {
-		if($category) $id = $this->_getPostTop($category);
-		else $id = $this->_getPostByUrl($url);
+	public function _getContent($url=null) {
+		if($url[1]=='category') {
+			$id = $this->_getPostByCategory($url[2]);
+		} else {
+			$id = $this->_getPostByUrl($url['full']);
+		}
 
 		if($id) {
-			$wp_posts = get_posts($id);
-			foreach($wp_posts as $wp_post) {
-				if($wp_post->ID==$id) {
-					$retVal = array();
-					$retVal['url'] = $wp_post->post_name;
-					$retVal['title'] = $wp_post->post_title;
-					$retVal['content'] = $this->_wpMod($wp_post->post_content);
-					$retVal['links'] = $this->_getLinks($id);
-					return $retVal;		
-				}
-			}
+			$this->pebug->log( "core_wordpress_model::_getContent($id)" );
+			$wp_post = get_post($id);
+			$retVal = array();
+			$retVal['url'] = $wp_post->post_name;
+			$retVal['title'] = $wp_post->post_title;
+			$retVal['content'] = $this->_wpMod($wp_post->post_content);
+			$retVal['links'] = $this->_getLinks($id);
+			return $retVal;		
 		}
 	}
 
 
+
+
+
+
+
 	// get top entry out of the category
-	private function _getPostTop($category) {
-		if(empty($category)) $this->_trough404('_getPostTop: No category set');
-		require($this->wp);
-		$cid = get_cat_ID($category);
+	private function _getPostByCategory($category) {
+		$cid = get_category_by_slug($category)->term_id ?? false;
 		if($cid) {
-			$wp_posts = get_posts(array('category'=>get_cat_ID($category)));
+			$query = array(
+				'numberposts' => 1000,
+				'category' => $cid,
+				'post_status' => 'publish'
+			);
+			$wp_posts = get_posts($query);
 			foreach($wp_posts as $wp_post) {
 				$id = $wp_post->ID;
 				$tags = wp_get_post_tags($wp_post->ID);
 				foreach($tags as $tag) {
-					if($tag->name=='top') return $id;
+					if($tag->name=='top') return $id; // Prefer top
 				}
 			}
 			if(!empty($id)) return $id; // Backup, random one
 		}
-		$this->_trough404('_getPostTop: No category found');
+		$this->_trough404('_getPostByCategory: No category found');
 	}
 
 
@@ -98,8 +106,16 @@ class core_wordpress_model extends \Pedetes\model {
 		$query = array('name'=>$url,'post_type'=>'post','post_status'=>'publish','posts_per_page'=>1);
 		$posts = get_posts($query);
 		if(!empty($posts)) return $posts[0]->ID;
-		else return 0;
+		$this->_trough404('_getPostByCategory: No category found');
 	}
+
+
+
+
+
+
+
+
 
 
 	// get links for posts from the same category
@@ -116,6 +132,9 @@ class core_wordpress_model extends \Pedetes\model {
 				'active' => ($post->ID == $id) ? 1 : 0
 				);
 		}
+		if(count($retVal)<=1) {
+			return null;
+		}
 		return $retVal;
 	}
 
@@ -128,7 +147,7 @@ class core_wordpress_model extends \Pedetes\model {
 
 	// should be pdebug
 	private function _trough404($msg=null) {
-		dbg('Blog: 404 --> '.$msg,true);
+		dbg('Blog: 404 --> '.$msg);
 	}
 
 
