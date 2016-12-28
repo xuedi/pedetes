@@ -81,18 +81,17 @@ class controller {
 		} else $this->pebug->error("controller::loadCoreModel($name): File does not exist! [$file]");
 	}
 
-	// get basic data (layout) data
+	// get basic data (layout) data if such class
 	function loadLayout() {
 		$file = $this->ctn['pathApp'];
 		$file .= $this->ctn['config']['path']['model'];
 		$file .= 'layout_model.php';
 		if(file_exists($file)) {
 			require_once($file);
-		} else $this->pebug->error("controller::loadLayout(): Failed to load!"); //TODO: load core layout
-
-		$tmp = new layout_model($this->ctn);
-		$data = $tmp->getBaseData();
-		$this->view->assign( $data );
+			$tmp = new layout_model($this->ctn);
+			$data = $tmp->getBaseData();
+			$this->view->assign( $data );
+		}
 	}
 
 	public function redirect($url=null) {
