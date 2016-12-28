@@ -13,9 +13,11 @@ class core_wordpress_model extends \Pedetes\model {
 		parent::__construct($ctn);
 		$this->pebug->log("core_wordpress_model::__construct()");
 
-		$this->wp = $ctn['config']['wordpress']."wp-blog-header.php";
-		if(!file_exists($this->wp)) $this->pebug->error( "core_wordpress_model::__construct(): WP not found! [".$this->wp."]" );
-		else require($this->wp);
+		$this->wp = $ctn['config']['wordpress']."wp-load.php";
+		if(!file_exists($this->wp)) {
+			$this->pebug->error( "core_wordpress_model::__construct(): WP not found! [".$this->wp."]" );
+		}
+		require($this->wp);
 	}
 
 
