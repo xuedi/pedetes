@@ -11,16 +11,47 @@ class core_wordpress_model extends \Pedetes\model {
 
 	function __construct($ctn) {
 		parent::__construct($ctn);
-        $this->pebug->log("core_wordpress_model::__construct()");
+		$this->pebug->log("core_wordpress_model::__construct()");
 
-        $this->wp = $ctn['config']['wordpress']."wp-blog-header.php";
-        if(!file_exists($this->wp)) $this->pebug->error( "core_wordpress_model::__construct(): WP not found!" );
+		$this->wp = $ctn['config']['wordpress']."wp-blog-header.php";
+		if(!file_exists($this->wp)) $this->pebug->error( "core_wordpress_model::__construct(): WP not found! [".$this->wp."]" );
+		else require($this->wp);
+	}
+
+
+	public function getCategoryTree() {
+		$tree = array();
+		$list = array();
+
+		$args = array(
+			'type' => 'post',
+			'child_of' => 0,
+			'orderby' => 'name',
+			'order' => 'ASC',
+			'hide_empty' => 0,
+			'hierarchical' => 1,
+			'taxonomy' => 'category',
+			'pad_counts' => false 
+			);
+
+		$data = get_categories($args);
+		foreach($data as $value) {
+			$list[] = array(
+				'id' => $value->term_id,
+				'name' => $value->name,
+				'slug' => $value->slug,
+				'parent' => $value->category_parent,
+				'children' => [],
+				);
+		}
+
+		$tree = $this->_hierarchical($list);
+
+		return $tree;
 	}
 
 
 	public function _getContent($category=null, $url=null) {
-		require($this->wp);
-
 		if($category) $id = $this->_getPostTop($category);
 		else $id = $this->_getPostByUrl($url);
 
@@ -62,7 +93,6 @@ class core_wordpress_model extends \Pedetes\model {
 
 	// loads specific post by url
 	private function _getPostByUrl($url) {
-		require($this->wp);
 		$query = array('name'=>$url,'post_type'=>'post','post_status'=>'publish','posts_per_page'=>1);
 		$posts = get_posts($query);
 		if(!empty($posts)) return $posts[0]->ID;
@@ -72,7 +102,6 @@ class core_wordpress_model extends \Pedetes\model {
 
 	// get links for posts from the same category
 	private function _getLinks($id) {
-		require($this->wp);
 		$retVal = array();
 		$posts = get_posts(array('category__in' => wp_get_post_categories($id)));
 		foreach( $posts as $post ) {
@@ -101,6 +130,21 @@ class core_wordpress_model extends \Pedetes\model {
 	}
 
 
+	// transform hierarchical
+	private function _hierarchical(array $elements, $parentId = 0) {
+		$branch = array();
+		foreach($elements as $element) {
+			if ($element['parent'] == $parentId) {
+				$children = $this->_hierarchical($elements, $element['id']);
+				if($children) {
+					$element['children_count'] = count($children);
+					$element['children'] = $children;
+				}
+				$branch[$element['slug']] = $element;
+			}
+		}
+		return $branch;
+	}
 
 
 }
