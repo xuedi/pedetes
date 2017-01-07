@@ -24,10 +24,10 @@ $ctn["pathApp"] = $app . '/';
 
 
 // injected helper
-$ctn['session'] = $ctn->factory(function ($ctn) { return new Pedetes\session($ctn); });
-$ctn['db']      = $ctn->factory(function ($ctn) { return new Pedetes\database($ctn); });
-$ctn['request'] = $ctn->factory(function ($ctn) { return new Pedetes\request($ctn); });
-$ctn['cache']   = $ctn->factory(function ($ctn) { return new Pedetes\cache($ctn); });
+$ctn['session'] = function ($ctn) { return new Pedetes\session($ctn); };
+$ctn['db']      = function ($ctn) { return new Pedetes\database($ctn); };
+$ctn['request'] = function ($ctn) { return new Pedetes\request($ctn); };
+$ctn['cache']   = function ($ctn) { return new Pedetes\cache($ctn); };
 
 
 // start up the app
