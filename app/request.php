@@ -6,10 +6,11 @@ namespace Pedetes;
 //Todo: complete cleanup
 class request {
 
-	var $ctn;
-	var $pebug;
+    var $ctn;
+    /** @var pebug $pebug */
+    var $pebug;
 
-	function __construct($ctn) {
+    function __construct($ctn) {
         $this->pebug = $ctn['pebug'];
         $this->pebug->log("request::__construct()");
 
@@ -56,13 +57,13 @@ class request {
 		// check on empty
 		if($value=='') {
 			if($allowEmpty) return "";
-			else $this->pebug->error("request::get($req): The requested value is empty!");
+			else $this->pebug->error("request::get(): The requested value is empty!");
 		}
 
 		switch($type) {
 
 			case "FREE":
-				return $this->getFree($value, $default);
+				return $this->getFree($value);
 			break;
 
 			case "TEXT":
@@ -74,7 +75,7 @@ class request {
 			break;
 
 			case "EMAIL":
-				return $this->getEmail($value, $default);
+				return $this->getEmail($value);
 			break;
 
 			case "DATETIME":
@@ -95,6 +96,7 @@ class request {
 			break;
 
 		}
+		return false;
 	}
 
 	private function getPlainText($req, $default = NULL) {
@@ -102,7 +104,7 @@ class request {
 
 		if(ctype_alnum($req)) return $req;
 		elseif($verbose) $this->pebug->error("request::getPlainText($req): Invalid Character!");
-		else return $default;
+		return $default;
 	}
 
 
@@ -122,22 +124,14 @@ class request {
 	}
 
 	// no restrictions
-	private function getFree($req, $default = NULL) {
+	private function getFree($req) {
 		return $req;
 	}
 
 
-	private function getEmail($req, $default = NULL) {
-		$verbose = $this->ctn['config']['debugging'];
-
-		//TODO database need to take care of ' for example its still valid here
+	private function getEmail($req) {
 		return filter_var($req, FILTER_SANITIZE_EMAIL);
-
-//		if(filter_var($req, FILTER_VALIDATE_EMAIL)) return $req;
-//		elseif($verbose) $this->debug->error("request::getEmail($req): Email not valid!");
-//		else $default;
-		
-	}
+    }
 
 
 	private function getNumber($req, $default = NULL) {
@@ -151,7 +145,6 @@ class request {
 
 
 	private function getArray($req, $default = NULL, $allowEmpty=false) {
-		$verbose = $this->ctn['config']['debugging'];
 
 		// Check if $default is actually an array, if not, terminate
 		if(!is_array($default)) 
@@ -167,6 +160,7 @@ class request {
 
 		// if no hit trough an exeption
 		$this->pebug->error("request::getArray($req): No Array hit!");
+		return false;
 	}
 
 	public function getLocation() {
