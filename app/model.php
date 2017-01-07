@@ -14,29 +14,14 @@ class model {
 	var $data;
 
 	function __construct($ctn) {
+        $this->pebug = $ctn['pebug'];
+        $this->pebug->log( "model::__construct()" );
 
-		// get pebug
-		$this->pebug = pebug::Instance();
-		$this->pebug->log("model::__construct()");
-
-		// container itself
 		$this->ctn = $ctn;
-
-		// database connector
 		$this->db = $ctn['db'];
-
-		// database connector
 		$this->request = $ctn['request'];
-
-		// session module
 		$this->mem = $ctn['session'];
-
-		// cache module
 		$this->cache = $ctn['cache'];
-
-		// dummy data
-		$data = array();
-
 	}
 
 
@@ -46,7 +31,6 @@ class model {
 
 	// basic load an object return, on demand, not on event/location
 	public function loadModel($name) {
-		$this->pebug->log("model::loadModel($name)");
 		$file = $this->ctn['pathApp'];
 		$file .= $this->ctn['config']['path']['model'];
 		$file .= $name.'_model.php';
@@ -59,7 +43,6 @@ class model {
 
 	// basic load an object return, on demand, not on event/location
 	public function loadCoreModel($name) {
-		$this->pebug->log("model::loadCoreModel($name)");
 		$file = $this->ctn['pathLib'];
 		$file .= "app/core/";
 		$file .= 'core_'.$name.'_model.php';

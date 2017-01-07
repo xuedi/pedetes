@@ -15,37 +15,22 @@ class bootstrap {
 	private $_callHash = null;
 	private $_appHash = null;
 	private $_controller = null;
-	
-	// Always include trailing slash
-	private $_controllerPath = 'app/controllers/'; 
-	private $_viewPath = 'app/views/'; 
-	private $_modelPath = 'app/models/'; 
-	private $_errorFile = 'app/error.php';
-	
+	private $_controllerPath = 'app/controllers/';
+
 
 	function __construct($ctn) {
+        $this->pebug = $ctn['pebug'];
+        $this->pebug->log("bootstrap::__construct()");
 
-		// generate app hash
-		$this->_appHash = md5($ctn['pathApp']);
+        // set some stuff
+        $this->_appHash = md5($ctn['pathApp']);
+        $this->_host = $_SERVER['HTTP_HOST'];
 
-		// get pebug
-		$this->pebug = pebug::Instance();
-		$this->pebug->log( "bootstrap::__construct()" );
-
-		// ctn itself
-		$this->ctn = $ctn;
-
-		// cache module
+        // inject some stuff
+        $this->ctn = $ctn;
 		$this->cache = $ctn['cache'];
-
-		// session module
 		$this->mem = $ctn['session'];
-
-		// symfony request object
-		$this->request = $ctn['request']; 
-
-		// set various boot vars
-		$this->_host = $_SERVER['HTTP_HOST'];
+		$this->request = $ctn['request'];
 	}
 
 
@@ -66,9 +51,6 @@ class bootstrap {
 		// execute stuff
 		$this->_loadController();
 		$this->_callControllerMethod();
-
-		// debugger
-		$this->pebug->log( "bootstrap::init()" );
 	}
 		
 
@@ -96,9 +78,6 @@ class bootstrap {
 		// Default controller
 		if(empty($this->_url[0])) $this->_url[0] = "index";
 		$this->mem->set('url',$this->_url);
-
-		// and log
-		$this->pebug->log( "bootstrap::_getUrl() " );
 	}
 	
 
@@ -120,7 +99,6 @@ class bootstrap {
 				$this->pebug->error("Bootstrap::_loadController(): Controller does not exist: ");
 			}
 		}
-		$this->pebug->log( "bootstrap::_loadController()" );
 	}
 	
 

@@ -3,28 +3,16 @@ namespace Pedetes;
 
 class pebug {
 
-    var $msgStart;
-    var $msgLogs = array();
+    private $msgStart;
+    private $msgLogs = array();
+    private $timer = array();
+    private $timerLog = array();
 
-    var $timer = array();
-    var $timerLog = array();
-
-    public static function Instance() {
-        static $inst = null;
-        if($inst === null) $inst = new pebug();
-        return $inst;
-    }
-
-    function init($start) {
-        $this->msgStart = $start;
-        $this->log("pebug start: ".date("H:i:s", $start), $start);
-        $this->log("debug::init()");
-        $this->timer_start("pebug", $start);
+    function __construct($ctn) {
+        $this->msgStart = $ctn['startTime'];
+        $this->log("pebug start: ".date("H:i:s", $this->msgStart), $this->msgStart);
+        $this->timer_start("pebug", $this->msgStart);
         $this->timer_stop("pebug");
-    }
-
-    private function __construct() {
-        // you cannot touch it!
     }
 
     public function timer_start($timer_id, $time=null) {
@@ -40,23 +28,21 @@ class pebug {
     }
 
     public function log($message, $time=null) {
-
         if(is_null($time)) $time = microtime(true);
-
         $this->msgLogs[] = array(
             "msg" => $message,
             "time" => $time - $this->msgStart);
     }
 
     public function debug($message) {
-        $message = "<font color=blue><b>DEBUG: </b>$message</font>";
+        $message = "<span style='color: blue; '><b>DEBUG: </b>$message</span>";
         $this->msgLogs[] = array(
             "msg" => $message,
             "time" => microtime(true) - $this->msgStart);
     }
 
     public function error($message) {
-        $message = "<font color=red><b>ERROR: </b></font>$message";
+        $message = "<span style='color: red; '><b>ERROR: </b></span>$message";
         $this->msgLogs[] = array(
             "msg" => $message,
             "time" => microtime(true) - $this->msgStart);
@@ -65,7 +51,7 @@ class pebug {
     }
 
     public function report() {
-        $retval  = "<div id='debug_logs'>";
+        $retval  = "<div id='debug_logs' class='pebugWindows'>";
         $retval .= "<table>";
         foreach ($this->msgLogs as $value) {
             $msg = $value['msg'];
@@ -75,12 +61,9 @@ class pebug {
         $retval .="</table>";
         $retval .="</div>";
 
-
-        sort($this->timerLog);
-
-
-        $retval .= "<div id='debug_time'>";
+        $retval .= "<div id='debug_time' class='pebugWindows'>";
         $retval .= "<table>";
+        sort($this->timerLog);
         foreach ($this->timerLog as $value) {
             $name = $value['name'];
             $time = sprintf('%3.4f',$value['time']);

@@ -9,9 +9,7 @@ class database extends PDO {
 	var $has;
 	
 	public function __construct($ctn) {
-
-		// get pebug
-		$this->pebug = pebug::Instance();
+        $this->pebug = $ctn['pebug'];
 		$this->pebug->log("database::__construct()");
 
 		// does use database at all

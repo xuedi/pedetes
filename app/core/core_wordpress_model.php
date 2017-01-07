@@ -17,7 +17,10 @@ class core_wordpress_model extends \Pedetes\model {
 		if(!file_exists($this->wp)) {
 			$this->pebug->error( "core_wordpress_model::__construct(): WP not found! [".$this->wp."]" );
 		}
+
+        $this->pebug->timer_start("wordpress");
 		require($this->wp);
+        $this->pebug->timer_stop("wordpress");
 	}
 
 

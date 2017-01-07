@@ -8,14 +8,11 @@ class view extends smarty_i18n {
 
     function __construct($ctn) {
         parent::__construct($ctn);
-
-        // debugger
-        $this->pebug = pebug::Instance();
+        $this->pebug = $ctn['pebug'];
         $this->pebug->log( "view::__construct()" );
     }
 
     public function render( $name, $skipLayout=false, $cache=true ) {
-        if($noCaching) $cache = false;
 
         $base = $this->ctn['pathApp'];
         $view = $this->ctn['config']['path']['view'];

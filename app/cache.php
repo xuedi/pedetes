@@ -3,10 +3,14 @@ namespace Pedetes;
 
 class cache {
 
+    private $pebug;
 	private $hasAPCu;
 
     // singelton
     public function __construct($ctn) {
+        $this->pebug = $ctn['pebug'];
+        $this->pebug->log( "cache::__construct()" );
+
     	apcu_store('APCu_test', true, 0);
         if(apcu_fetch('APCu_test')) $this->hasAPCu = true;
         else $this->hasAPCu = false;

@@ -2,21 +2,19 @@
 namespace Pedetes;
 // http://php.net/manual/en/filter.filters.sanitize.php
 // http://php.net/manual/en/filter.filters.validate.php
+
+//Todo: complete cleanup
 class request {
 
 	var $ctn;
 	var $pebug;
 
 	function __construct($ctn) {
+        $this->pebug = $ctn['pebug'];
+        $this->pebug->log("request::__construct()");
 
-        // get pebug
-        $this->pebug = pebug::Instance();
-        $this->pebug->log("database::__construct()");
-
-		// container itself
-		$this->ctn = $ctn;
-
-	}
+        $this->ctn = $ctn;
+    }
 
 
 	public function getPath() {

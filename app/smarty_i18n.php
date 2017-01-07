@@ -12,9 +12,7 @@ class smarty_i18n extends Smarty {
 
 	function __construct($ctn) {
 		parent::__construct();  // smarty parents business
-
-		// get pebug
-		$this->pebug = pebug::Instance();
+        $this->pebug = $ctn['pebug'];
 		$this->pebug->log("smarty_i18n::__construct()");
 
 		// ctn itself
@@ -51,7 +49,7 @@ class smarty_i18n extends Smarty {
 			// check if language cache exists
 			$base = $this->ctn['pathApp'];
 			$temp = $this->ctn['config']['path']['temp'];
-			$cache_file = $base.$temp."cache.serialize.txt";;
+			$cache_file = $base.$temp."cache.serialize.txt"; //Todo: move to database and cache in cache class
 			if(file_exists($cache_file)) {
 
 				// fetch raw data

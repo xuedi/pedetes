@@ -10,27 +10,14 @@ class controller {
 	var $request;
 
 	function __construct($ctn) {
+        $this->pebug = $ctn['pebug'];
+        $this->pebug->log( "controller::__construct()" );
 
-		// get pebug
-		$this->pebug = pebug::Instance();
-		$this->pebug->log( "controller::__construct()" );
-
-		// container itself
 		$this->ctn = $ctn;
-
-		// create new view
 		$this->view = new view($ctn);
-
-		// session module
 		$this->mem = $this->ctn['session'];
-
-		// load basic data
-		$this->loadLayout();      
-
-		// request object
-		$this->request = $this->ctn['request']; 
-
-		// check if install is needed
+		$this->loadLayout();
+		$this->request = $this->ctn['request'];
 		$this->install($ctn);
 	}
 
