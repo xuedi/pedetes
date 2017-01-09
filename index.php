@@ -22,7 +22,7 @@ $ctn["pathApp"] = $app . '/';
 
 
 // injected helper
-$ctn['pebug']   = function ($bgn) { return new Pedetes\pebug($bgn); };
+$ctn['pebug']   = function ($ctn) { return new Pedetes\pebug($ctn); };
 $ctn['session'] = function ($ctn) { return new Pedetes\session($ctn); };
 $ctn['db']      = function ($ctn) { return new Pedetes\database($ctn); };
 $ctn['request'] = function ($ctn) { return new Pedetes\request($ctn); };
