@@ -6,7 +6,7 @@ class cache {
     private $pebug;
 	private $hasAPCu;
 
-    // singelton
+
     public function __construct($ctn) {
         $this->pebug = $ctn['pebug'];
         $this->pebug->log( "cache::__construct()" );
@@ -16,6 +16,10 @@ class cache {
         else $this->hasAPCu = false;
     }
 
+
+    public function hasAcpu() {
+        return $this->hasAPCu;
+    }
 
     public function delete($name) {
         if($this->hasAPCu) {
@@ -53,8 +57,10 @@ class cache {
         return true;
     }
 
+
     public function setIfNot($name, $value) {
-        //
+        if($this->exist($name)) return false;
+        else return $this->set($name, $value);
     }
 
 
