@@ -17,8 +17,8 @@ $ctn['startTime'] = $startTime;
 
 
 // injected paths
-$ctn["pathLib"] = $lib . '/';
-$ctn["pathApp"] = $app . '/';
+$ctn["pathLib"] = $lib.'/';
+$ctn["pathApp"] = $app.'/';
 
 
 // injected helper
