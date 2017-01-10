@@ -98,7 +98,7 @@ class request {
         return $this;
     }
 
-    public function get() {
+    public function value() {
         if(!isset($this->returnValue)) {
             $this->pebug->exception("request::_get->NoNameWasGiven");
         }
@@ -136,12 +136,31 @@ class request {
                 if($this->isValidated) return $this->returnValue;
                 else return $this->default;
                 break;
-
         }
         // No validation and not strict, maybe LOG?
         return $this->returnValue;
     }
 
+    // non strict classic
+    public function get($name, $type, $default, $array=[]) {
+        switch($type) {
+            case 'plaintext':
+                return $this->name($name)->default($default)->validatePlaintext()->value();
+                break;
+            case 'free':
+                return $this->name($name)->default($default)->validateFree()->value();
+                break;
+            case 'email':
+                return $this->name($name)->default($default)->validateEmail()->value();
+                break;
+            case 'number':
+                return $this->name($name)->default($default)->validateNumber()->value();
+                break;
+            case 'array':
+                return $this->name($name)->default($default)->array($array)->validateArray()->value();
+                break;
+        }
+    }
 
 
 }
