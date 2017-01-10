@@ -142,21 +142,27 @@ class request {
     }
 
     // non strict classic
-    public function get($name, $type, $default, $array=[]) {
+    public function get($name, $type, $default='', $array=[]) {
         switch($type) {
-            case 'plaintext':
+            case 'PLAINTEXT':
                 return $this->name($name)->default($default)->validatePlaintext()->value();
                 break;
-            case 'free':
+            case 'TEXT':
+                return $this->name($name)->default($default)->validatePlaintext()->value();
+                break;
+            case 'FREE':
                 return $this->name($name)->default($default)->validateFree()->value();
                 break;
-            case 'email':
+            case 'FREE':
+                return $this->name($name)->default($default)->validateFree()->value();
+                break;
+            case 'DATETIME':
                 return $this->name($name)->default($default)->validateEmail()->value();
                 break;
-            case 'number':
+            case 'NUMBER':
                 return $this->name($name)->default($default)->validateNumber()->value();
                 break;
-            case 'array':
+            case 'ARRAY':
                 return $this->name($name)->default($default)->array($array)->validateArray()->value();
                 break;
         }
