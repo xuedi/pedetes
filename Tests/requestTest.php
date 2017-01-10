@@ -111,9 +111,9 @@ class requestTest extends TestCase {
     }
     public function testValidateArrayWithOptions_OK() {
         $request = new request($this->ctn);
-        $request->setMock("value",'hello');
-        $options = array('hello','world','how','are','you');
-        $this->assertEquals('hello', $request->name("value")->default(100)->array($options)->validateArray()->value());
+        $request->setMock("lang",'de');
+        $options = array('de','en','zh','fr');
+        $this->assertEquals('de', $request->name("lang")->default('en')->array($options)->validateArray()->value());
     }
     public function testValidateArrayWithOptions_FAIL() {
         $request = new request($this->ctn);
@@ -121,4 +121,5 @@ class requestTest extends TestCase {
         $options = array('hello','world','how','are','you');
         $this->assertEquals(100, $request->name("value")->default(100)->array($options)->validateArray()->value());
     }
+
 }

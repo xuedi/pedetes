@@ -153,10 +153,7 @@ class request {
             case 'FREE':
                 return $this->name($name)->default($default)->validateFree()->value();
                 break;
-            case 'FREE':
-                return $this->name($name)->default($default)->validateFree()->value();
-                break;
-            case 'DATETIME':
+            case 'EMAIL':
                 return $this->name($name)->default($default)->validateEmail()->value();
                 break;
             case 'NUMBER':
@@ -166,6 +163,7 @@ class request {
                 return $this->name($name)->default($default)->array($array)->validateArray()->value();
                 break;
         }
+        return true;
     }
 
 
