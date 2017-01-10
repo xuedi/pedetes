@@ -6,165 +6,142 @@ namespace Pedetes;
 //Todo: complete cleanup
 class request {
 
-    var $ctn;
-    /** @var pebug $pebug */
-    var $pebug;
+    private $ctn;
+    /** @var  pebug $pebug */
+    private $pebug;
+
+    private $returnValue;
+    private $strict;
+    private $type;
+    private $default;
+    private $isValidated;
+    private $hadValidation;
+    private $array;
 
     function __construct($ctn) {
         $this->pebug = $ctn['pebug'];
         $this->pebug->log("request::__construct()");
 
         $this->ctn = $ctn;
+        $this->type = null;
+        $this->array = array();
+        $this->default = null;
+        $this->strict = false;
+        $this->hadValidation = false;
+        $this->isValidated = false;
+    }
+
+    public function setMock($parameter, $value=null) {
+        $_REQUEST[$parameter] = $value;
+    }
+
+    public function name($name) {
+        $this->returnValue = $_REQUEST[$name] ?? null;
+        return $this;
+    }
+
+    public function strict() {
+        $this->strict = true;
+        return $this;
+    }
+
+    public function default($name='') {
+        $this->default = $name;
+        return $this;
+    }
+
+    public function array($array) {
+        $this->array = $array;
+        return $this;
+    }
+
+    public function validatePlaintext() {
+        $this->type = 'plaintext';
+        $this->hadValidation = true;
+        $this->isValidated = true; //Todo: just allow [a-z], [A-Z], [0-9], and so on
+        return $this;
+    }
+
+    public function validateFree() { // for passwords, should only be compared by PHP. never by statements, should trigger warning on use
+        $this->type = 'free';
+        $this->hadValidation = true;
+        $this->isValidated = true; //Todo: check of suspicious stuff
+        return $this;
+    }
+
+    public function validateEmail() {
+        $this->type = 'email';
+        $this->hadValidation = true;
+        $this->isValidated = filter_var($this->returnValue, FILTER_SANITIZE_EMAIL);
+        return $this;
+    }
+
+    public function validateArray() {
+        $this->type = 'array';
+        $this->hadValidation = true;
+        if(empty($this->array)) {
+            $this->isValidated = false;
+            return $this;
+        }
+        if(in_array($this->returnValue,$this->array)) {
+            $this->isValidated = true;
+        } else {
+            $this->isValidated = false;
+        }
+        return $this;
+    }
+
+    public function validateNumber() {
+        $this->type = 'number';
+        $this->hadValidation = true;
+        $this->isValidated = is_numeric($this->returnValue);
+        return $this;
+    }
+
+    public function get() {
+        if(!isset($this->returnValue)) {
+            $this->pebug->exception("request::_get->NoNameWasGiven");
+        }
+        if(!$this->hadValidation) {
+            $this->pebug->exception("request::_get->ValidationIsMissing");
+        }
+        if($this->strict) { // strict, just trough exception
+            if (!$this->isValidated) {
+                $this->pebug->exception("request::_get->ValidationFailed");
+            }
+        } else { // not strict, try default
+            if($this->default===null) {
+                $this->pebug->exception("request::_get->NoDefaultWasGiven");
+            }
+        }
+        switch($this->type) {
+            case 'plaintext':
+                if($this->isValidated) return $this->returnValue;
+                else return $this->default;
+                break;
+            case 'free':
+                if($this->isValidated) return $this->returnValue;
+                else return $this->default;
+                break;
+            case 'email':
+                if($this->isValidated) return $this->returnValue;
+                else return $this->default;
+                break;
+            case 'number':
+                if($this->isValidated) return $this->returnValue;
+                else return $this->default;
+                break;
+            case 'array':
+                if(empty($this->array)) $this->pebug->exception("request::_get->NoArrayOptionsWhereGiven");
+                if($this->isValidated) return $this->returnValue;
+                else return $this->default;
+                break;
+
+        }
+        // No validation and not strict, maybe LOG?
+        return $this->returnValue;
     }
 
 
-	public function getPath() {
-		return $_SERVER["REQUEST_URI"];
-	}
 
-
-	public function get($name, $type, $default = NULL, $allowEmpty = NULL) {
-
-		if(isset($_REQUEST[$name])) {
-
-			// verfy data
-			return $this->verify($_REQUEST[$name], $type, $default, $allowEmpty);
-
-		} else {
-			// no value set
-			if($type=='ARRAY') {
-				if(isset($default[0])) return $default[0]; // try first array element
-				else return null;
-			} else return $default;
-		}
-	}
-
-
-	public function getData() {
-		$retVal = array();
-		foreach($_REQUEST as $key => $value) {
-			if(substr($key, 0, 5)=="data_") {
-				$cleanKey = substr($key, 5, strlen($key));
-				$retVal[$cleanKey] = $value;
-			}
-		}
-		return $retVal;
-	}
-
-
-	public function verify($value, $type, $default = NULL, $allowEmpty = NULL) {
-
-		// check on empty
-		if($value=='') {
-			if($allowEmpty) return "";
-			else $this->pebug->error("request::get(): The requested value is empty!");
-		}
-
-		switch($type) {
-
-			case "FREE":
-				return $this->getFree($value);
-			break;
-
-			case "TEXT":
-				return $this->getText($value, $default);
-			break;
-
-			case "PLAINTEXT":
-				return $this->getPlainText($value, $default);
-			break;
-
-			case "EMAIL":
-				return $this->getEmail($value);
-			break;
-
-			case "DATETIME":
-			    // Check the dte and the format
-			    return $value;
-			break;
-
-			case "NUMBER":
-				return $this->getNumber($value, $default);
-			break;
-
-			case "ARRAY":
-				return $this->getArray($value, $default, $allowEmpty);
-			break;
-
-			default:
-				$this->pebug->error("request::get($value): No Valid type!");
-			break;
-
-		}
-		return false;
-	}
-
-	private function getPlainText($req, $default = NULL) {
-		$verbose = $this->ctn['config']['debugging'];
-
-		if(ctype_alnum($req)) return $req;
-		elseif($verbose) $this->pebug->error("request::getPlainText($req): Invalid Character!");
-		return $default;
-	}
-
-
-	private function getText($req, $default = NULL) {
-		$verbose = $this->ctn['config']['debugging'];
-
-		// no single signs
-		if(strpos($req, "'")!=0) {
-			if($verbose) $this->pebug->error("request::getText($req): PlainText check: ''' not allowed!");
-			else return $default;
-		}
-		if(strpos($req, "%")!=0) {
-			if($verbose) $this->pebug->error("request::getText($req): PlainText check: '%' not allowed!");
-			else return $default;
-		}
-		return $req;
-	}
-
-	// no restrictions
-	private function getFree($req) {
-		return $req;
-	}
-
-
-	private function getEmail($req) {
-		return filter_var($req, FILTER_SANITIZE_EMAIL);
-    }
-
-
-	private function getNumber($req, $default = NULL) {
-		$verbose = $this->ctn['config']['debugging'];
-		if(!is_numeric($req)) {
-			if($verbose) $this->pebug->error("request::getNumber($req): Not a number!");
-			else return $default;
-		}
-		return $req;
-	}
-
-
-	private function getArray($req, $default = NULL, $allowEmpty=false) {
-
-		// Check if $default is actually an array, if not, terminate
-		if(!is_array($default)) 
-			$this->pebug->error("request::getArray($req): Default is not array!");
-
-		// loop and compare the values
-		foreach($default as $value) {
-			if( $value == $req ) return $req;
-		}
-
-		// empty is legal
-		if($allowEmpty) return '';
-
-		// if no hit trough an exeption
-		$this->pebug->error("request::getArray($req): No Array hit!");
-		return false;
-	}
-
-	public function getLocation() {
-
-
-	}
 }
