@@ -1,6 +1,8 @@
 <?php
 namespace Pedetes;
 
+use Exception;
+
 class pebug {
 
     private $msgStart;
@@ -48,6 +50,10 @@ class pebug {
             "time" => microtime(true) - $this->msgStart);
         echo $this->report();
         exit();
+    }
+
+    public function exception($message) {
+        throw new Exception($message);
     }
 
     public function report() {
