@@ -8,6 +8,7 @@ class controller {
 	var $pebug;
 	var $basicData;
 	var $request;
+    var $cache;
 
 	function __construct($ctn) {
         $this->pebug = $ctn['pebug'];
@@ -15,10 +16,11 @@ class controller {
 
 		$this->ctn = $ctn;
 		$this->view = new view($ctn);
-		$this->mem = $this->ctn['session'];
-		$this->loadLayout();
-		$this->request = $this->ctn['request'];
-		$this->install($ctn);
+        $this->mem = $this->ctn['session'];
+        $this->cache = $this->ctn['cache'];
+        $this->request = $this->ctn['request'];
+        $this->loadLayout();
+        $this->install($ctn);
 	}
 
 
@@ -68,19 +70,6 @@ class controller {
 		} else $this->pebug->error("controller::loadCoreModel($name): File does not exist! [$file]");
 	}
 
-	// get basic data (layout) data if such class
-	function loadLayout() {
-		$file = $this->ctn['pathApp'];
-		$file .= $this->ctn['config']['path']['model'];
-		$file .= 'layout_model.php';
-		if(file_exists($file)) {
-			require_once($file);
-			$tmp = new layout_model($this->ctn);
-			$data = $tmp->getBaseData();
-			$this->view->assign( $data );
-		}
-	}
-
 	public function redirect($url=null) {
 		// get current location
 		if(!$url) $url = '/';
@@ -107,6 +96,18 @@ class controller {
 		echo json_encode($data);
 		die();
 	}
+
+    private function loadLayout() {
+        $file = $this->ctn['pathApp'];
+        $file .= $this->ctn['config']['path']['model'];
+        $file .= 'layout_model.php';
+        if(file_exists($file)) {
+            require_once($file);
+            $tmp = new layout_model($this->ctn);
+            $data = $tmp->getBaseData();
+            $this->view->assign( $data );
+        }
+    }
 
 	private function isAjax() {
 		if(!isset($_SERVER['HTTP_X_REQUESTED_WITH'])) 
