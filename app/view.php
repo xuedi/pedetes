@@ -4,7 +4,6 @@ namespace Pedetes;
 class view extends smarty_i18n {
 
     var $pebug;
-    var $noCaching=false;
 
     function __construct($ctn) {
         parent::__construct($ctn);

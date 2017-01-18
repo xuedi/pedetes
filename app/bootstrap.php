@@ -1,6 +1,8 @@
 <?php
 namespace Pedetes;
 
+use errorHandler;
+
 class bootstrap {
 
 	var $ctn;
@@ -9,11 +11,8 @@ class bootstrap {
 	var $pebug;
 	var $request;
 
-	private $_fc = false;
 	private $_url = null;
 	private $_host = null;
-	private $_callHash = null;
-	private $_appHash = null;
 	private $_controller = null;
 	private $_controllerPath = 'app/controllers/';
 
@@ -23,7 +22,6 @@ class bootstrap {
         $this->pebug->log("bootstrap::__construct()");
 
         // set some stuff
-        $this->_appHash = md5($ctn['pathApp']);
         $this->_host = $_SERVER['HTTP_HOST'];
 
         // inject some stuff
@@ -45,9 +43,6 @@ class bootstrap {
 		// Sets the protected $_url
 		$this->_getUrl();
 
-		// If caching is enabled break here and deliver
-		$this->_checkCache();
-
 		// execute stuff
 		$this->_loadController();
 		$this->_callControllerMethod();
@@ -61,19 +56,12 @@ class bootstrap {
 		$url = strtok($url, '?'); // cut off parameters
 		$url = trim($url, '/');
 		$url = filter_var($url, FILTER_SANITIZE_URL);
-		$this->_callHash = md5($url); // remember caller
 		$this->_url = explode('/', $url);
 
 		// full path after controller
 		$full = explode('/', $url);
 		array_shift($full);
 		$this->_url['full'] = implode('/', $full);
-
-		// flush cache if wished for
-		if(strtolower($this->_url[0])=='fc') {
-			array_shift( $this->_url );
-			$this->_fc = true;
-		}
 
 		// Default controller
 		if(empty($this->_url[0])) $this->_url[0] = "index";
@@ -92,9 +80,7 @@ class bootstrap {
 			$file = $this->ctn["pathApp"]. $this->_controllerPath . 'errorHandler' . '.php';
 			if(file_exists($file)) {
 				require_once $file;
-				//$this->_controller = new errorHandler($this->ctn, 404);
-				$this->_url[0] = 'errorHandler'; //TODO: why does prev line does not work O_o
-				$this->_controller = new $this->_url[0]($this->ctn, 404);
+				$this->_controller = new errorHandler($this->ctn, 404);
 			} else {
 				$this->pebug->error("Bootstrap::_loadController(): Controller does not exist: ");
 			}
@@ -140,7 +126,7 @@ class bootstrap {
 	private function _loadConfig() {
 
 		// try to load from cache
-		$cfg = $this->cache->get($this->_appHash."_config");
+		$cfg = $this->cache->get("config");
 		if($cfg['site']) {
 			$this->ctn['config'] = $cfg;
 			return true;
@@ -152,40 +138,17 @@ class bootstrap {
 			$content = file_get_contents($file);
 			$config = json_decode($content, true);
 			if($config['site']) {
-				$this->cache->set($this->_appHash."_config", $config);
+				$this->cache->set("config", $config);
 				$this->ctn['config'] = $config;
 				return true;
 			} else {
 				$error = json_last_error_msg();
-				$msg = "Bootstrap::_loadConfigSite(): Cant parse config: $error";
-				$this->pebug->error($msg);
+				$this->pebug->error("Bootstrap::_loadConfigSite(): Cant parse config: $error");
 			}
 		}
 
 		// give up when no config found
 		$this->pebug->error("Bootstrap::_loadConfig(): Could not load config: $file");
-	}
-
-
-	// check for hard caches and deliver
-	private function _checkCache() {
-
-		// generate uniquePage id for later caching
-		$upid = $this->_appHash."_".$this->_callHash;
-		$this->ctn['upid'] = $upid;
-
-		// when caching is enabled lets go
-		if($this->ctn['config']['caching']) {
-			if($this->cache->exist($upid)) {
-				if($this->_fc) { // flush cash
-					$this->cache->delete($upid);
-				} else {
-					$page = $this->cache->get($upid);
-					echo unserialize($page);
-					die(); // job done
-				}
-			}
-		}
 	}
 
 }

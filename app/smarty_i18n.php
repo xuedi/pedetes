@@ -1,12 +1,15 @@
 <?php
 namespace Pedetes;
 
-use \Smarty;
+use Pedetes\core\core_i18n_model;
+use Smarty;
+use Smarty_Internal_Template;
 
 class smarty_i18n extends Smarty {
 	
 	var $ctn;
-	var $mem;
+    var $mem;
+    var $cache;
 	var $pebug;
 	var $translation_dir = "";
 
@@ -15,11 +18,10 @@ class smarty_i18n extends Smarty {
         $this->pebug = $ctn['pebug'];
 		$this->pebug->log("smarty_i18n::__construct()");
 
-		// ctn itself
+        // inject some stuff
 		$this->ctn = $ctn;
-
-		// session module
 		$this->mem = $ctn['session'];
+        $this->cache = $ctn['cache'];
 
 		// smarty basic setup
 		$base = $this->ctn['pathApp'];
@@ -32,69 +34,52 @@ class smarty_i18n extends Smarty {
 
 		// smarty internal settings
 		$this->caching = Smarty::CACHING_OFF;
-//		$this->force_compile = false;
-
 	}
 
-
-	
 	function loadMLFilter($file, $caching = true) {
-		$retVal = "";
-		$this->pebug->log( "smarty_i18n::loadMLFilter()" );
 
-		// check in language is set
-		$language = $this->mem->get('language');
-		if($language!="") {
+		// register language filter (if pre or post, will be cached)
+		$this->registerFilter('output', [$this, 'translationFilter']);
 
-			// check if language cache exists
-			$base = $this->ctn['pathApp'];
-			$temp = $this->ctn['config']['path']['temp'];
-			$cache_file = $base.$temp."cache.serialize.txt"; //Todo: move to database and cache in cache class
-			if(file_exists($cache_file)) {
-
-				// fetch raw data
-				$this->pebug->timer_start("render");
-				$tpl = $this->fetch($file); // sencond parameter is caching_id
-				$this->pebug->timer_stop("render");
-
-				// do all the i18n
-				$this->pebug->timer_start("i18n");
-				$filter = unserialize(file_get_contents($cache_file)); //todo: load into APC and cache
-				if(isset($filter[$language]['key'])&&isset($filter[$language]['value'])) {
-					$retVal = str_replace($filter[$language]['key'], $filter[$language]['value'], $tpl);
-				} else $retVal = $tpl;
-				$this->pebug->timer_stop("i18n");
-
-			} else $this->pebug->error( "smarty_i18n::loadMLFilter($file): File does not exist [$cache_file]" );
-		} else $this->pebug->error( "smarty_i18n::loadMLFilter($file): Language is not set!" );
-
-		// do caching
-		if($this->ctn['config']['caching'] && $caching) {
-			$upid = $this->ctn['upid'];
-			$cache = $this->ctn['cache'];
-			if($cache->exist($upid)) {
-				$cache->delete($upid);
-			}
-			$data = serialize($retVal);
-			$time = $this->ctn['config']['caching'];
-			$cache->set($upid, $data, $time);
-		}
+		// fetch raw data
+		$this->pebug->timer_start("render");
+		$retVal = $this->fetch($file);
+		$this->pebug->timer_stop("render");
 
 		return $retVal;
 	}
 
-
-	
 	function displayML($file, $caching) {
 		echo $this->loadMLFilter($file, $caching);
 	}
 
-
-	
 	function fetchML($file, $caching) {
 		return $this->loadMLFilter($file, $caching);
 	}
-		
+
+    function translationFilter($tpl_output, Smarty_Internal_Template $template) {
+        $language = $this->mem->get('language');
+        if($language!="") {
+
+			// get translations
+			$this->pebug->timer_start("i18n");
+			if(!$this->cache->exist('translations')) {
+				$i18n = new core_i18n_model($this->ctn);
+				$filter = $i18n->getCache();
+				$this->cache->setIfValue('translations', $filter);
+			} else $filter = $this->cache->get('translations');
+
+			// apply translations
+            if(isset($filter[$language]['key'])&&isset($filter[$language]['value'])) {
+                $tpl_output = str_replace($filter[$language]['key'], $filter[$language]['value'], $tpl_output);
+            }
+
+			//$tpl_output = 'kuzt';
+			$this->pebug->timer_stop("i18n");
+        } else $this->pebug->error( "smarty_i18n::loadMLFilter($file): Language is not set!" );
+        return $tpl_output;
+    }
+
 }
 
 ?> 

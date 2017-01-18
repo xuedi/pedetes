@@ -5,13 +5,13 @@ class cache {
 
     private $pebug;
 	private $hasAPCu;
-    private $upid;
+	private $appHash;
 
 
     public function __construct($ctn) {
         $this->pebug = $ctn['pebug'];
         $this->pebug->log( "cache::__construct()" );
-        $this->upid = $this->ctn['upid'];
+        $this->appHash = $ctn['appHash'];
 
     	apcu_store('APCu_test', true, 0);
         if(apcu_fetch('APCu_test')) $this->hasAPCu = true;
@@ -24,7 +24,7 @@ class cache {
     }
 
     public function delete($name) {
-        $key = $this->upid.'_'.$name;
+        $key = $this->getKey($name);
         if($this->hasAPCu) {
             apcu_delete($key);
         } else {
@@ -32,9 +32,8 @@ class cache {
         }
     }
 
-
     public function exist($name) {
-        $key = $this->upid.'_'.$name;
+        $key = $this->getKey($name);
         if($this->hasAPCu) {
             return apcu_exists($key);
         } else {
@@ -42,9 +41,8 @@ class cache {
         }
     }
 
-
     public function get($name) {
-        $key = $this->upid.'_'.$name;
+        $key = $this->getKey($name);
         if($this->hasAPCu) {
             return apcu_fetch($key);
         } else {
@@ -52,9 +50,8 @@ class cache {
         }
     }
 
-
     public function set($name, $value, $ttl=0) {
-        $key = $this->upid.'_'.$name;
+        $key = $this->getKey($name);
         if($this->hasAPCu) {
             apcu_store($key, $value, $ttl);
         } else {
@@ -63,17 +60,18 @@ class cache {
         return true;
     }
 
-
     public function setIfNot($name, $value) {
         if($this->exist($name)) return false;
         else return $this->set($name, $value);
     }
-
 
     public function setIfValue($name, $value) {
         if(empty($value)) return false;
         else return $this->set($name, $value);
     }
 
+    private function getKey($name) {
+        return $this->appHash.'_'.$name;
+    }
 
 }
