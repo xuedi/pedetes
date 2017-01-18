@@ -4,14 +4,16 @@ namespace Pedetes;
 class cache {
 
     private $pebug;
-	private $hasAPCu;
-	private $appHash;
+    private $hasAPCu;
+    private $appHash;
+    private $cachePath;
 
 
     public function __construct($ctn) {
         $this->pebug = $ctn['pebug'];
         $this->pebug->log( "cache::__construct()" );
         $this->appHash = $ctn['appHash'];
+        $this->cachePath = $ctn['pathApp'].'cache/';
 
     	apcu_store('APCu_test', true, 0);
         if(apcu_fetch('APCu_test')) $this->hasAPCu = true;
@@ -28,7 +30,9 @@ class cache {
         if($this->hasAPCu) {
             apcu_delete($key);
         } else {
-            unset($_SESSION[$key]);
+            if(file_exists($this->cachePath.$key)) {
+                unlink($this->cachePath.$key);
+            }
         }
     }
 
@@ -37,7 +41,15 @@ class cache {
         if($this->hasAPCu) {
             return apcu_exists($key);
         } else {
-            return isset($_SESSION[$key]);
+            if(file_exists($this->cachePath.$key)) {
+                $time = filemtime($this->cachePath.$key);
+                $ttl = $this->get($name)['ttl'] ?? 0;
+                if($ttl && time() > ($time+$ttl) ) {
+                    return false; // no need for unlink...
+                }
+                return true;
+            }
+            return false;
         }
     }
 
@@ -46,7 +58,10 @@ class cache {
         if($this->hasAPCu) {
             return apcu_fetch($key);
         } else {
-            return $_SESSION[$key];
+            if(file_exists($this->cachePath.$key)) {
+                $data = file_get_contents($this->cachePath.$key);
+                return json_decode($data, true)['data'];
+            } else return null;
         }
     }
 
@@ -55,7 +70,9 @@ class cache {
         if($this->hasAPCu) {
             apcu_store($key, $value, $ttl);
         } else {
-            $_SESSION[$key] = $value;
+            $value = ['ttl'=>$ttl,'data'=>$value];
+            $value = json_encode($value, JSON_PRETTY_PRINT);
+            file_put_contents($this->cachePath.$key,$value);
         }
         return true;
     }
@@ -73,5 +90,6 @@ class cache {
     private function getKey($name) {
         return $this->appHash.'_'.$name;
     }
+
 
 }
