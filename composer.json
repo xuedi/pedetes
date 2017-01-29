@@ -8,11 +8,11 @@
         }
     ],
     "require": {
-        "pimple/pimple": "~3.0",
+        "pimple/pimple": "*",
         "smarty/smarty": "~3.1",
         "mobiledetect/mobiledetectlib": "^2.8",
-        "phpmailer/phpmailer": "~5.2",
-        "phpunit/phpunit": "5.5.*"
+        "phpmailer/phpmailer": "*",
+        "phpunit/phpunit": "*"
     },
     "autoload": {
         "psr-4": {
