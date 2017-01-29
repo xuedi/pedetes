@@ -6,12 +6,25 @@ use \Mobile_Detect;
 
 class model {
 
+    /** @var database $db */
 	var $ctn;
+
+    /** @var database $db */
 	var $db;
+
+    /** @var session $mem */
 	var $mem;
+
+    /** @var pebug $pebug */
 	var $pebug;
-	var $request;
-	var $data;
+
+    /** @var request $request */
+    var $request;
+
+    /** @var cache $cache */
+    var $cache;
+
+    var $data;
 
 	function __construct($ctn) {
         $this->pebug = $ctn['pebug'];
@@ -21,7 +34,7 @@ class model {
 		$this->db = $ctn['db'];
 		$this->request = $ctn['request'];
 		$this->mem = $ctn['session'];
-		$this->cache = $ctn['cache'];
+        $this->cache = $ctn['cache'];
 	}
 
 
