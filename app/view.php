@@ -1,17 +1,32 @@
 <?php
 namespace Pedetes;
 
+use Twig_Environment;
+use Twig_Loader_Filesystem;
+
 class view extends smarty_i18n {
 
+    /** @var pebug $pebug */
     var $pebug;
+    private $twig;
 
     function __construct($ctn) {
         parent::__construct($ctn);
         $this->pebug = $ctn['pebug'];
         $this->pebug->log( "view::__construct()" );
+
+        $base = $this->ctn['pathApp'];
+        $view = $this->ctn['config']['path']['view'];
+        $temp = $this->ctn['config']['path']['temp'];
+
+        $loader = new Twig_Loader_Filesystem(($base.$view));
+        $this->twig = new Twig_Environment($loader, array(
+            'cache' => $base.$temp,
+        ));
     }
 
     public function render( $name, $skipLayout=false, $cache=true ) {
+        //$twig->render('index.html', array('name' => 'Fabien'))
 
         $base = $this->ctn['pathApp'];
         $view = $this->ctn['config']['path']['view'];
