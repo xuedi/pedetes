@@ -10,6 +10,7 @@
     "require": {
         "pimple/pimple": "*",
         "smarty/smarty": "~3.1",
+        "twig/twig": "~2",
         "mobiledetect/mobiledetectlib": "^2.8",
         "phpmailer/phpmailer": "*",
         "phpunit/phpunit": "*",
