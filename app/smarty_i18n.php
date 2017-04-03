@@ -8,10 +8,17 @@ use Smarty_Internal_Template;
 class smarty_i18n extends Smarty {
 	
 	var $ctn;
-    var $mem;
-    var $cache;
-	var $pebug;
 	var $translation_dir = "";
+
+    /** @var session $session */
+    var $session;
+
+    /** @var pebug $pebug */
+    var $pebug;
+
+    /** @var cache $cache */
+    var $cache;
+
 
 	function __construct($ctn) {
 		parent::__construct();  // smarty parents business
@@ -20,7 +27,7 @@ class smarty_i18n extends Smarty {
 
         // inject some stuff
 		$this->ctn = $ctn;
-		$this->mem = $ctn['session'];
+		$this->session = $ctn['session'];
         $this->cache = $ctn['cache'];
 
 		// smarty basic setup
@@ -58,7 +65,7 @@ class smarty_i18n extends Smarty {
 	}
 
     function translationFilter($tpl_output, Smarty_Internal_Template $template) {
-        $language = $this->mem->get('language');
+        $language = $this->session->get('language');
         if($language!="") {
 
 			// get translations

@@ -6,10 +6,18 @@ use errorHandler;
 class bootstrap {
 
 	var $ctn;
-	var $mem;
-	var $cache;
-	var $pebug;
-	var $request;
+
+    /** @var session $session */
+    var $session;
+
+    /** @var pebug $pebug */
+    var $pebug;
+
+    /** @var request $request */
+    var $request;
+
+    /** @var cache $cache */
+    var $cache;
 
 	private $_url = null;
 	private $_host = null;
@@ -27,7 +35,7 @@ class bootstrap {
         // inject some stuff
         $this->ctn = $ctn;
 		$this->cache = $ctn['cache'];
-		$this->mem = $ctn['session'];
+		$this->session = $ctn['session'];
 		$this->request = $ctn['request'];
 	}
 
@@ -38,7 +46,7 @@ class bootstrap {
 		$this->_loadConfig();
 
 		// set default values
-		$this->mem->setIfNot('language', 'en');
+		$this->session->setIfNot('language', 'en');
 
 		// Sets the protected $_url
 		$this->_getUrl();
@@ -65,7 +73,7 @@ class bootstrap {
 
 		// Default controller
 		if(empty($this->_url[0])) $this->_url[0] = "index";
-		$this->mem->set('url',$this->_url);
+		$this->session->set('url',$this->_url);
 	}
 	
 

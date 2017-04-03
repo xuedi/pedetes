@@ -23,9 +23,9 @@ class core_user_model extends \Pedetes\model {
 
 		// do the login
 		if(password_verify($password.$salt, $hash)) {
-			$this->mem->set('user_id', $data['id'] );
-			$this->mem->set('user_name', $data['username'] );
-			$this->mem->set('user_role', $data['role_id'] );
+			$this->session->set('user_id', $data['id'] );
+			$this->session->set('user_name', $data['username'] );
+			$this->session->set('user_role', $data['role_id'] );
 			return true;
 		}
 		return false;

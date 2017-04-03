@@ -13,7 +13,7 @@ class model {
 	var $db;
 
     /** @var session $mem */
-	var $mem;
+	var $session;
 
     /** @var pebug $pebug */
 	var $pebug;
@@ -33,7 +33,7 @@ class model {
 		$this->ctn = $ctn;
 		$this->db = $ctn['db'];
 		$this->request = $ctn['request'];
-		$this->mem = $ctn['session'];
+		$this->session = $ctn['session'];
         $this->cache = $ctn['cache'];
 	}
 

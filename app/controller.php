@@ -1,13 +1,23 @@
 <?php
 namespace Pedetes;
 
+use Requests;
+
 class controller {
 
 	var $ctn;
-	var $mem;
-	var $pebug;
 	var $basicData;
+
+	/** @var session $session */
+	var $session;
+
+	/** @var pebug $pebug */
+	var $pebug;
+
+    /** @var request $request */
 	var $request;
+
+	/** @var cache $cache */
     var $cache;
 
 	function __construct($ctn) {
@@ -16,7 +26,7 @@ class controller {
 
 		$this->ctn = $ctn;
 		$this->view = new view($ctn);
-        $this->mem = $this->ctn['session'];
+        $this->session = $this->ctn['session'];
         $this->cache = $this->ctn['cache'];
         $this->request = $this->ctn['request'];
         $this->loadLayout();
@@ -25,7 +35,7 @@ class controller {
 
 
 	// basic load an object return, on demand, not on event/location
-	public function loadModel($name) { //TODO use '...' operator PHP 5.6
+	public function loadModel($name) { //TODO use '...' operator
 		$this->pebug->log("controller::loadModel($name)");
 
 		// dynamic number of arguments
