@@ -75,12 +75,10 @@ class core_i18n_model extends \Pedetes\model {
 		$this->db->select($sth, null, PDO::FETCH_COLUMN);
 	}
 
-	public function getCache() {
+
+	public function getTranslations() {
 		$retVal = array();
-		$sql = "SELECT ukey, language, translation FROM i18n_translation ";
-		$sth = $this->db->prepare( $sql );
-		$sth->execute();
-		$result = $sth->fetchALL(PDO::FETCH_ASSOC);
+        $result = $this->db->select("SELECT ukey, language, translation FROM i18n_translation ");
 		foreach($result as $row) {
 			$lang = $row['language'];
 			$retVal[$lang]['key'][] = "##".$row['ukey']."##";
@@ -88,8 +86,6 @@ class core_i18n_model extends \Pedetes\model {
 		} 
 		return $retVal;
 	}
-
-
 
 
 	public function publish() {

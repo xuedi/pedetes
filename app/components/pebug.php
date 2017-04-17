@@ -1,7 +1,6 @@
 <?php
 namespace Pedetes;
 
-use Exception;
 
 class pebug {
 
@@ -10,40 +9,72 @@ class pebug {
     private $timer = array();
     private $timerLog = array();
 
-    function __construct($ctn) {
-        $this->msgStart = $ctn['startTime'];
+
+    /**
+     * pebug constructor.
+     * @param float $startTime
+     */
+    function __construct(float $startTime) {
+        $this->msgStart = $startTime;
         $this->log("pebug start: ".date("H:i:s", $this->msgStart), $this->msgStart);
-        $this->timer_start("pebug", $this->msgStart);
-        $this->timer_stop("pebug");
+        $this->timer_start("autoload", $this->msgStart);
+        $this->timer_stop("autoload");
     }
 
-    public function timer_start($timer_id, $time=null) {
+
+    /**
+     * Starts a named timer
+     * @param string $timer_id The timer id as string for ex.: 'saveUser'
+     * @param float|null $time
+     */
+    public function timer_start(string $timer_id, float $time=null) {
         if(is_null($time)) $time = microtime(true);
         $this->timer[$timer_id] = $time;
     }
 
-    public function timer_stop($timer_id) {
+
+    /**
+     * Stops a timer and records the passed time
+     * @param string $timer_id The timer id as string for ex.: 'saveUser'
+     */
+    public function timer_stop(string $timer_id) {
         $time = microtime(true) - $this->timer[$timer_id];
         $this->timerLog[$timer_id] = array(
             "time" => $time,
             "name" => $timer_id);
     }
 
-    public function log($message, $time=null) {
+
+    /**
+     * Records a standart log message
+     * @param string $message
+     * @param float|null $time
+     */
+    public function log(string $message, float $time=null) {
         if(is_null($time)) $time = microtime(true);
         $this->msgLogs[] = array(
             "msg" => $message,
             "time" => $time - $this->msgStart);
     }
 
-    public function debug($message) {
+
+    /**
+     * Records a debug message
+     * @param string $message
+     */
+    public function debug(string $message) {
         $message = "<span style='color: blue; '><b>DEBUG: </b>$message</span>";
         $this->msgLogs[] = array(
             "msg" => $message,
             "time" => microtime(true) - $this->msgStart);
     }
 
-    public function error($message) {
+
+    /**
+     * Exits the app with an error
+     * @param string $message
+     */
+    public function error(string $message) {
         $message = "<span style='color: red; '><b>ERROR: </b></span>$message";
         $this->msgLogs[] = array(
             "msg" => $message,
@@ -52,10 +83,11 @@ class pebug {
         exit();
     }
 
-    public function exception($message) {
-        throw new Exception($message);
-    }
 
+    /**
+     * Generates the debugging bar for display
+     * @return string
+     */
     public function report() {
         $retval  = "<div id='debug_logs' class='pebugWindows'>";
         $retval .= "<table>";

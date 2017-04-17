@@ -1,41 +1,47 @@
 <?php
 namespace Pedetes;
 
-use Requests;
+use Pimple\Container;
 
 class controller {
 
-	var $ctn;
 	var $basicData;
 
-	/** @var session $session */
-	var $session;
+    /** @var  Container $ctn */
+	var $ctn;
+
+    /** @var session $session */
+    var $session;
+
+    /** @var config $config */
+    var $config;
 
 	/** @var pebug $pebug */
 	var $pebug;
 
-    /** @var request $request */
-	var $request;
-
 	/** @var cache $cache */
     var $cache;
+
+    /** @var view $view */
+    var $view;
 
 	function __construct($ctn) {
         $this->pebug = $ctn['pebug'];
         $this->pebug->log( "controller::__construct()" );
 
 		$this->ctn = $ctn;
-		$this->view = new view($ctn);
-        $this->session = $this->ctn['session'];
         $this->cache = $this->ctn['cache'];
-        $this->request = $this->ctn['request'];
+        $this->config = $this->ctn['config'];
+        $this->session = $this->ctn['session'];
+
+		$this->view = new view($this->pebug, $this->cache, $this->config, $this->session->get('language'), $ctn['pathApp']);
         $this->loadLayout();
         $this->install($ctn);
 	}
 
 
 	// basic load an object return, on demand, not on event/location
-	public function loadModel($name) { //TODO use '...' operator
+	public function loadModel($name) { //TODO use '...' operator //TODO: specify parameters
 		$this->pebug->log("controller::loadModel($name)");
 
 		// dynamic number of arguments
@@ -109,7 +115,7 @@ class controller {
 
     private function loadLayout() {
         $file = $this->ctn['pathApp'];
-        $file .= $this->ctn['config']['path']['model'];
+        $file .= $this->config->getData()['path']['model'];
         $file .= 'layout_model.php';
         if(file_exists($file)) {
             require_once($file);
@@ -130,7 +136,8 @@ class controller {
 	}
    
 	private function install($ctn) {
-		if(!$ctn['config']['installed']) {
+        $installed = $ctn['config']->getData()['installed'] ?? null;
+		if(!$installed) {
 			$tmp = new install;
 			$tmp->install($ctn);
 			die();

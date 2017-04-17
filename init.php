@@ -18,23 +18,57 @@ $startTime = microtime(true);
 require $lib.'/vendor/autoload.php';
 
 
+
 // create injection container
 $ctn = new Pimple\Container();
 $ctn['startTime'] = $startTime;
 
 
-// injected paths
+
+// settings
 $ctn["pathLib"] = $lib.'/';
 $ctn["pathApp"] = $app.'/';
 $ctn["appHash"] = md5($ctn['pathApp']);
 
 
-// injected helper
-$ctn['pebug']   = function ($ctn) { return new Pedetes\pebug($ctn); };
-$ctn['session'] = function ($ctn) { return new Pedetes\session($ctn); };
-$ctn['db']      = function ($ctn) { return new Pedetes\database($ctn); };
-$ctn['request'] = function ($ctn) { return new Pedetes\request($ctn); };
-$ctn['cache']   = function ($ctn) { return new Pedetes\cache($ctn); };
+
+// components
+$ctn['pebug'] = function ($ctn) {
+    return new Pedetes\pebug(
+        $ctn['startTime']
+    );
+};
+$ctn['session'] = function ($ctn) {
+    return new Pedetes\session( // redis?
+        $ctn['pebug']
+    );
+};
+$ctn['request'] = function ($ctn) {
+    return new Pedetes\request(
+        $ctn['pebug']
+    );
+};
+$ctn['cache'] = function ($ctn) {
+    return new Pedetes\cache(
+        $ctn['pebug'],
+        $ctn["appHash"],
+        $ctn["pathApp"]
+    );
+};
+$ctn['config'] = function ($ctn) {
+    return new Pedetes\config(
+        $ctn['pebug'],
+        $ctn["cache"],
+        $ctn["pathApp"]
+    );
+};
+$ctn['db'] = function ($ctn) { //TODO: Rename to match class
+    return new Pedetes\database(
+        $ctn['pebug'],
+        $ctn['config']
+    );
+};
+
 
 
 // start up the app

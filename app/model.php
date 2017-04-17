@@ -6,7 +6,6 @@ use \Mobile_Detect;
 
 class model {
 
-    /** @var database $db */
 	var $ctn;
 
     /** @var database $db */
@@ -23,8 +22,6 @@ class model {
 
     /** @var cache $cache */
     var $cache;
-
-    var $data;
 
 	function __construct($ctn) {
         $this->pebug = $ctn['pebug'];
@@ -45,7 +42,7 @@ class model {
 	// basic load an object return, on demand, not on event/location
 	public function loadModel($name) {
 		$file = $this->ctn['pathApp'];
-		$file .= $this->ctn['config']['path']['model'];
+		$file .= $this->ctn['config']->getData()['path']['model'];
 		$file .= $name.'_model.php';
 		if(file_exists($file)) {
 			require_once($file);
@@ -66,6 +63,11 @@ class model {
 		} else $this->pebug->error("model::loadCoreModel($name): File does not exist! [$file]");
 	}
 
+
+
+
+
+
 	// collected usefull mini methods
 	public function _isGuid($guid) {
 		if(preg_match('/^\{?[A-Z0-9]{8}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{12}\}?$/', $guid)) {
@@ -76,15 +78,6 @@ class model {
 	}
 	public function _stripGuid($guid) {
 		return str_replace(array('{','}'), array('',''), $guid);
-	}
-	public function get($name) {
-		return $this->data[$name];
-	}
-	public function set($name, $value) {
-		$this->data[$name] = $value;
-	}
-	public function getAll() {
-		return $this->data;
 	}
 	public function isMobile() {
 		$detect = new Mobile_Detect;

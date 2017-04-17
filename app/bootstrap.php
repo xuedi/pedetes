@@ -2,9 +2,12 @@
 namespace Pedetes;
 
 use errorHandler;
+use Pedetes\core\core_i18n_model;
+use Pimple\Container;
 
 class bootstrap {
 
+    /** @var  Container $ctn */
 	var $ctn;
 
     /** @var session $session */
@@ -37,19 +40,29 @@ class bootstrap {
 		$this->cache = $ctn['cache'];
 		$this->session = $ctn['session'];
 		$this->request = $ctn['request'];
+
 	}
 
 
 	public function init() {
 
-		// load pages
-		$this->_loadConfig();
-
 		// set default values
 		$this->session->setIfNot('language', 'en');
 
+
+		// preWarm language cache
+        $this->pebug->timer_start("i18nWarm");
+        if(!$this->cache->exist('translations')) {
+            $i18n = new core_i18n_model($this->ctn);
+            $filter = $i18n->getTranslations();
+            $this->cache->setIfValue('translations', $filter);
+        }
+        $this->pebug->timer_stop("i18nWarm");
+
+
 		// Sets the protected $_url
 		$this->_getUrl();
+
 
 		// execute stuff
 		$this->_loadController();
@@ -84,17 +97,21 @@ class bootstrap {
 		if(file_exists($file)) {
 			require_once $file;
 			$this->_controller = new $this->_url[0]($this->ctn);
-		} else {
-			$file = $this->ctn["pathApp"]. $this->_controllerPath . 'errorHandler' . '.php';
-			if(file_exists($file)) {
-				require_once $file;
-				$this->_controller = new errorHandler($this->ctn, 404);
-			} else {
-				$this->pebug->error("Bootstrap::_loadController(): Controller does not exist: ");
-			}
+			return;
 		}
+
+        // try error handler
+        $file = $this->ctn["pathApp"]. $this->_controllerPath . 'errorHandler' . '.php';
+        if(file_exists($file)) {
+            require_once $file;
+            $this->_controller = new errorHandler($this->ctn, 404);
+            return;
+        }
+
+        // could not continue
+        $this->pebug->error("Bootstrap::_loadController(): Controller does not exist: ");
 	}
-	
+
 
 	private function _callControllerMethod() {
 
@@ -103,7 +120,7 @@ class bootstrap {
 		array_shift($para); // remove controller
 		array_shift($para); // remove method
 
-		// add standart infos
+		// add standard info's
 		$para['controller'] = $this->_url[0];
 		$para['method'] = $this->_url[1];
 		$para['url'] = $this->_url;
@@ -130,33 +147,5 @@ class bootstrap {
 	}
 
 
-	// do only once and save result in APC cache
-	private function _loadConfig() {
-
-		// try to load from cache
-		$cfg = $this->cache->get("config");
-		if($cfg['site']) {
-			$this->ctn['config'] = $cfg;
-			return true;
-		}
-
-		// load from file
-		$file = $this->ctn['pathApp'].'/config.json';
-		if(file_exists($file)) {
-			$content = file_get_contents($file);
-			$config = json_decode($content, true);
-			if($config['site']) {
-				$this->cache->set("config", $config);
-				$this->ctn['config'] = $config;
-				return true;
-			} else {
-				$error = json_last_error_msg();
-				$this->pebug->error("Bootstrap::_loadConfigSite(): Cant parse config: $error");
-			}
-		}
-
-		// give up when no config found
-		$this->pebug->error("Bootstrap::_loadConfig(): Could not load config: $file");
-	}
 
 }

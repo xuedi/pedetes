@@ -19,7 +19,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Pedetes\\": "app/"
+            "Pedetes\\": ["app/", "app/components/"]
         }
     }
 }

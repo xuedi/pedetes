@@ -1,66 +1,92 @@
 <?php
 namespace Pedetes;
 
+use Pedetes\core\core_i18n_model;
+use Pimple\Container;
 use Twig_Environment;
 use Twig_Loader_Filesystem;
 
-class view extends smarty_i18n {
+class view {
 
-    /** @var pebug $pebug */
-    var $pebug;
+    private $pebug;
+    private $cache;
+    private $configData;
+    private $language;
+
+    /** @var Twig_Environment $twig */
     private $twig;
 
-    function __construct($ctn) {
-        parent::__construct($ctn);
-        $this->pebug = $ctn['pebug'];
+    /** @var array $variables */
+    private $variables;
+
+
+    function __construct(pebug $pebug, cache $cache, config $config, string $language, string $pathApp) {
+        $this->pebug = $pebug;
         $this->pebug->log( "view::__construct()" );
 
-        $base = $this->ctn['pathApp'];
-        $view = $this->ctn['config']['path']['view'];
-        $temp = $this->ctn['config']['path']['temp'];
+        $this->cache = $cache;
+        $this->configData = $config->getData();
+        $this->language = $language;
 
-        $loader = new Twig_Loader_Filesystem(($base.$view));
+        $view = $this->configData['path']['view'];
+        $temp = $this->configData['path']['temp'];
+
+        $loader = new Twig_Loader_Filesystem(($pathApp.$view));
         $this->twig = new Twig_Environment($loader, array(
-            'cache' => $base.$temp,
+            'cache' => $pathApp.$temp,
         ));
+
+        $this->variables = [];
     }
 
-    public function render( $name, $skipLayout=false, $cache=true ) {
-        //$twig->render('index.html', array('name' => 'Fabien'))
 
-        $base = $this->ctn['pathApp'];
-        $view = $this->ctn['config']['path']['view'];
 
-        // check if file exists
-        if(!file_exists($base.$view.$name)) 
-            $this->pebug->error( "view::render($name): File does not exist!" );
-
-        // unique caller ID
-        $this->assign("uniqueCaller", get_called_class());
-
-        // render with all global vars
-        if ( $skipLayout == true ) $this->displayML( $name, $cache );
-        else {
-
-            // check if file exists
-            if(!file_exists($base.$view."layout/main.tpl")) 
-                $this->pebug->error( "view::render(layout/main.tpl): File does not exist!" );
-
-            // select content to be renderd into the layout
-            $this->assign( "tplContent", $name );
-
-            // display the whole page
-            $this->displayML( "layout/main.tpl", $cache );
-
+    public function assign($nameOrArray, $valueIfName = null) : bool {
+        if(empty($nameOrArray)) {
+            return true;
         }
+        if(is_array($nameOrArray)) {
+            $this->variables = array_merge($this->variables, $nameOrArray);
+            return true;
+        }
+        if(is_string($nameOrArray) && !empty($valueIfName)) {
+            $this->variables[$nameOrArray] = $valueIfName;
+            return true;
+        }
+        return false;
+    }
 
-        // debug summary!
+
+
+    public function render($twigTemplate) {
         $this->pebug->log( "view::render()" );
-        if($this->ctn['config']['console']) {
-            echo $this->pebug->report();
+
+
+        // render
+        $this->pebug->timer_start("render");
+        $output = $this->twig->render($twigTemplate, $this->variables);
+        $this->pebug->timer_stop("render");
+
+
+        // translate
+        $this->pebug->timer_start("i18n");
+        if(!$this->cache->exist('translations')) {
+            $this->pebug->error("view::render(): Could not find language cache");
+        } else $filter = $this->cache->get('translations');
+        $lang = $this->language;
+        if(isset($filter[$lang]['key'])&&isset($filter[$lang]['value'])) {
+            $output = str_replace($filter[$lang]['key'], $filter[$lang]['value'], $output);
         }
-        echo "</body></html>";
-        
+        $this->pebug->timer_stop("i18n");
+
+
+        // display
+        $this->pebug->log( "view::display()" );
+        if($this->configData['console']) {
+            $output = str_replace('#pebug_console#',$this->pebug->report(), $output);
+        }
+        echo $output;
+
     }
 
 }
