@@ -2,12 +2,17 @@
 namespace Pedetes;
 
 
+use DebugBar\StandardDebugBar;
+
 class pebug {
 
     private $msgStart;
     private $msgLogs = array();
     private $timer = array();
     private $timerLog = array();
+
+    /** @var StandardDebugBar $debugBar */
+    private $debugBar;
 
 
     /**
@@ -19,6 +24,8 @@ class pebug {
         $this->log("pebug start: ".date("H:i:s", $this->msgStart), $this->msgStart);
         $this->timer_start("autoload", $this->msgStart);
         $this->timer_stop("autoload");
+
+        $this->debugBar = new StandardDebugBar();
     }
 
 
@@ -89,6 +96,11 @@ class pebug {
      * @return string
      */
     public function report() {
+//        $renderer = $this->debugBar->getJavascriptRenderer();
+//        return $renderer->render();
+
+
+
         $retval  = "<div id='debug_logs' class='pebugWindows'>";
         $retval .= "<table>";
         foreach ($this->msgLogs as $value) {
@@ -111,6 +123,15 @@ class pebug {
         $retval .="</div>";
 
         return $retval;
+    }
+
+    /**
+     * Generates the debugging bar for display
+     * @return string
+     */
+    public function reportHead() {
+        $renderer = $this->debugBar->getJavascriptRenderer();
+        return $renderer->renderHead();
     }
 
 }
