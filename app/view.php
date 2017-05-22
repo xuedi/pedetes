@@ -31,10 +31,14 @@ class view {
         $view = $this->configData['path']['view'];
         $temp = $this->configData['path']['temp'];
 
+        $twigOptions = ['debug' => false, 'cache' => $pathApp.$temp];
+        if(!$this->configData['caching'] ?? false) {
+            $twigOptions['cache'] = false;
+            $twigOptions['debug'] = true;
+        }
+
         $loader = new Twig_Loader_Filesystem(($pathApp.$view));
-        $this->twig = new Twig_Environment($loader, array(
-            'cache' => $pathApp.$temp,
-        ));
+        $this->twig = new Twig_Environment($loader, $twigOptions);
 
         $this->variables = [];
     }
