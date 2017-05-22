@@ -15,7 +15,8 @@
         "phpmailer/phpmailer": "*",
         "phpunit/phpunit": "*",
         "ezyang/htmlpurifier": "~4.8.0",
-        "symfony/var-dumper": "*"
+        "symfony/var-dumper": "*",
+        "maximebf/debugbar": "1.*"
     },
     "autoload": {
         "psr-4": {
