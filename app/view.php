@@ -87,7 +87,8 @@ class view {
         // display
         $this->pebug->log( "view::display()" );
         if($this->configData['console']) {
-            $output = str_replace('#pebug_console#',$this->pebug->report(), $output);
+            $output = str_replace('#pebug_bottom#',$this->pebug->report(), $output);
+            $output = str_replace('#pebug_header#',$this->pebug->reportHeader(), $output);
         }
         echo $output;
 
