@@ -59,7 +59,7 @@ class request {
      * @param float $default The default value in case of non strict mode
      * @return float The requested parameter as a float
      */
-    public function getFloat(string $name, float $default=null) : float {
+    public function getFloat(string $name, float $default=0.0) : float {
         $value = $_REQUEST[$name] ?? null;
         if(!is_float($value)) {
             if($this->strict) {
@@ -76,8 +76,8 @@ class request {
      * @param string $default The default value in case of non strict mode
      * @return string The requested parameter as a string
      */
-    public function getText(string $name, string $default=null) : string {
-        $value = $_REQUEST[$name] ?? null;
+    public function getText(string $name, string $default='') : string {
+        $value = $_REQUEST[$name] ?? '';
         if(!preg_match('/[0-9-a-z-A-Z]/',$value)) { // TODO: unit test
             if($this->strict) {
                 $this->pebug->error("request::getText($name): The given parameter is not a plain text");
@@ -93,8 +93,8 @@ class request {
      * @param string $default The default value in case of non strict mode
      * @return string The requested parameter as a string (validated email)
      */
-    public function getEmail(string $name, string $default=null) : string {
-        $value = $_REQUEST[$name] ?? null;
+    public function getEmail(string $name, string $default='') : string {
+        $value = $_REQUEST[$name] ?? '';
         if(!filter_var($value, FILTER_VALIDATE_EMAIL)) {
             if($this->strict) {
                 $this->pebug->error("request::getEmail($name): The given parameter is not a plain text");
@@ -133,9 +133,9 @@ class request {
     /**
      * @param string $name The name of the requested parameter
      * @param mixed $default The default value in case of non strict mode
-     * @return string The requested parameter as a string (parsed by XSS checker)
+     * @return mixed The requested parameter as a string (parsed by XSS checker)
      */
-    public function getFree(string $name, mixed $default=null) : string {
+    public function getFree(string $name, mixed $default=null) {
         $value = $_REQUEST[$name] ?? null;
         $purifier = new HTMLPurifier();
         $value = $purifier->purify($value);

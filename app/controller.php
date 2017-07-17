@@ -25,6 +25,9 @@ class controller {
     /** @var view $view */
     var $view;
 
+    /** @var request $request */
+    var $request;
+
 	function __construct($ctn) {
         $this->pebug = $ctn['pebug'];
         $this->pebug->log( "controller::__construct()" );
@@ -33,6 +36,7 @@ class controller {
         $this->cache = $this->ctn['cache'];
         $this->config = $this->ctn['config'];
         $this->session = $this->ctn['session'];
+        $this->request = $this->ctn['request'];
 
 		$this->view = new view($this->pebug, $this->cache, $this->config, $this->session->get('language'), $ctn['pathApp']);
         $this->loadLayout();
@@ -50,7 +54,7 @@ class controller {
 
 		// load file
 		$file = $this->ctn['pathApp'];
-		$file .= $this->ctn['config']['path']['model'];
+		$file .= $this->ctn['config']->getData()['path']['model'];
 		$file .= $name.'_model.php';
 		if(file_exists($file)) {
 			require_once($file);

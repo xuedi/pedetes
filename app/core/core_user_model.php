@@ -11,7 +11,7 @@ class core_user_model extends \Pedetes\model {
 
 
 	public function login($username, $password) {
-		$salt = $this->ctn['config']['salt'];
+		$salt = $this->ctn['config']->getData()['salt'];
 
 		// check user to plain characters
 		if(preg_match('/[^A-Za-z0-9]/', $username)) return false;

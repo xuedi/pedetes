@@ -1,19 +1,20 @@
 <?php
 namespace Pedetes\core;
 
-use \PDO;
+use Pedetes\config;
 
 class core_wordpress_model extends \Pedetes\model {
 
-	var $table;
-	var $fields;
+    /** @var config $config */
+	private $config = null;
 	private $wp = null;
 
 	function __construct($ctn) {
 		parent::__construct($ctn);
 		$this->pebug->log("core_wordpress_model::__construct()");
+        $this->config = $ctn['config'];
 
-		$this->wp = $ctn['config']['wordpress']."wp-load.php";
+		$this->wp = $this->config->getData()['wordpress']."wp-load.php";
 		if(!file_exists($this->wp)) {
 			$this->pebug->error( "core_wordpress_model::__construct(): WP not found! [".$this->wp."]" );
 		}
