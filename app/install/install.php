@@ -1,18 +1,18 @@
 <?php
-namespace Pedetes;
+namespace Pedetes\install;
 
 use \PDO;
 
 class install {
 
 	public function install($ctn) {
-		if(!$ctn['config']['installed']) {
+	    $config =$ctn['config']->getData();
+		if(!$config['installed']) {
 			$msg = "";
 
 			// no sec here, just install
 			if($_REQUEST['action']=='save') {
 				$file = $ctn['pathApp']."config.json";
-				$config = $ctn['config'];
 
 				// update DB settings
 				$config['database']['name'] = $_REQUEST['db_name'];

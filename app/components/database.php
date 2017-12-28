@@ -23,10 +23,15 @@ class database {
         $this->pdo = null;
         $configData = $config->getData()['database'] ?? [];
 
+        $installed = $config->getData()['installed'] ?? null;
+        if(!$installed) {
+            return;
+        }
+
         $expected = ['host', 'name', 'port', 'user', 'pass'];
         foreach($expected as $parameter) {
             if(empty($configData[$parameter]))
-                $this->pebug->error("database::__construct(): {$configData[$parameter]} set! ");
+                $this->pebug->error("database::__construct(): {$parameter} is not set! ");
         }
 
         $dsn = "mysql:host={$configData['host']};port={$configData['port']};dbname={$configData['name']}";
@@ -58,6 +63,9 @@ class database {
 	}
 
 	public function select($sql, $array = array(), $fetchMode = PDO::FETCH_ASSOC) {
+	    if(empty($this->pdo)) {
+	        return [];
+        }
 		$sth = $this->getPDO()->prepare($sql);
 		if(isset($array)) {
 			foreach ($array as $key => $value) {

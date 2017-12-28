@@ -1,6 +1,7 @@
 <?php
 namespace Pedetes;
 
+use Pedetes\install\install;
 use Pimple\Container;
 
 class controller {
@@ -142,7 +143,7 @@ class controller {
 	private function install($ctn) {
         $installed = $ctn['config']->getData()['installed'] ?? null;
 		if(!$installed) {
-			$tmp = new install;
+			$tmp = new install();
 			$tmp->install($ctn);
 			die();
 		}
