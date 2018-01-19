@@ -2,12 +2,16 @@
 namespace Pedetes\core;
 
 use \PDO;
+use Pimple\Container;
 
 class core_i18n_model extends \Pedetes\model {
 
+    private $config = [];
+    private $buffer = [];
 
-	function __construct($ctn) {
+	function __construct(Container $ctn) {
 		parent::__construct($ctn);
+        $this->config = $ctn['config']->getData();
 		$this->pebug->log( "core_i18n_model::__construct()" );
 	}
 
@@ -90,7 +94,7 @@ class core_i18n_model extends \Pedetes\model {
 
 	public function publish() {
 		$base = $this->ctn['pathApp'];
-		$temp = $this->ctn['config']['path']['temp'];
+		$temp = $this->config['path']['temp'];
 		$file = $base.$temp."cache.serialize.txt";
 		$trans = $this->loadModel('i18n');
 		$cache = $trans->getCache();
@@ -101,12 +105,12 @@ class core_i18n_model extends \Pedetes\model {
 	public function search() {
 		$this->potClear();
 		$base = $this->ctn['pathApp'];
-		$path = $this->ctn['config']['path']['view'];
+        $path = $this->config['path']['view'];
 		$fileList = $this->getTemplateFiles($path);
 		foreach($fileList as $value) {
-			if(substr($value, -3)=="tpl") {
+			if(substr($value, -4)=="twig") {
 				if(file_exists($base.$value)) {
-					$lines = file($base.$value);
+                    $lines = file($base.$value);
 					$lineCount=0;
 					foreach($lines as $line) {
 						$match = "";

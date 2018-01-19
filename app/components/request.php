@@ -111,7 +111,7 @@ class request {
      * @param string $default The default value in case of non strict mode
      * @return string One of the allowed requested options or the default value
      */
-    public function getArray(string $name, array $options=[], string $default=null) : string {
+    public function getArray(string $name, array $options=[], string $default='') : string {
         $value = $_REQUEST[$name] ?? null;
         if(!is_array($options) || empty($options)) {
             if($this->strict) {
