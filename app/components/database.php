@@ -62,7 +62,7 @@ class database {
 		return $retVal;
 	}
 
-	public function select($sql, $array = array(), $fetchMode = PDO::FETCH_ASSOC) {
+	public function select($sql, $array = [], $fetchMode = PDO::FETCH_ASSOC) {
 	    if(empty($this->pdo)) {
 	        return [];
         }

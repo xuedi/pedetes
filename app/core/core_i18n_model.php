@@ -2,15 +2,23 @@
 namespace Pedetes\core;
 
 use \PDO;
+use Pedetes\cache;
 use Pimple\Container;
 
 class core_i18n_model extends \Pedetes\model {
 
+    /** @var array */
     private $config = [];
+
+    /** @var array */
     private $buffer = [];
+
+    /** @var cache */
+    var $cache;
 
 	function __construct(Container $ctn) {
 		parent::__construct($ctn);
+        $this->cache = $ctn['cache'];
         $this->config = $ctn['config']->getData();
 		$this->pebug->log( "core_i18n_model::__construct()" );
 	}
@@ -93,12 +101,8 @@ class core_i18n_model extends \Pedetes\model {
 
 
 	public function publish() {
-		$base = $this->ctn['pathApp'];
-		$temp = $this->config['path']['temp'];
-		$file = $base.$temp."cache.serialize.txt";
-		$trans = $this->loadModel('i18n');
-		$cache = $trans->getCache();
-		file_put_contents($file, serialize($cache));
+        $list = $this->getTranslations();
+        $this->cache->set('translations', $list);
 	}
 
 
@@ -148,8 +152,7 @@ class core_i18n_model extends \Pedetes\model {
 	// search for unused translations and clean them out of the DB
 	public function clean() {
 		$this->search();
-		$sth = $this->db->prepare("DELETE FROM i18n_translation WHERE ukey NOT IN (SELECT ukey FROM i18n)");
-		$sth->execute();
+        $this->db->select("DELETE FROM i18n_translation WHERE ukey NOT IN (SELECT ukey FROM i18n)");
 		$this->publish();
 	}
 
