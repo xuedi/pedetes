@@ -129,7 +129,7 @@ class bootstrap {
 		if(count($this->_url) >= 2) {
 			$method = $this->_url[1].'Action';
 			if(method_exists($this->_controller, $method)) {
-				$this->pebug->log( "bootstrap::_callControllerMethod(): execute [$method]" );
+				$this->pebug->log( "bootstrap::_callControllerMethod(): --> $method" );
 				$this->_controller->{$method}($para);
 				return;
 			} 

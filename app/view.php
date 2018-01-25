@@ -1,6 +1,7 @@
 <?php
 namespace Pedetes;
 
+use Exception;
 use Pedetes\core\core_i18n_model;
 use Pimple\Container;
 use Twig_Environment;
@@ -60,15 +61,20 @@ class view {
         return false;
     }
 
-
-
+    /**
+     * @param $twigTemplate
+     */
     public function render($twigTemplate) {
         $this->pebug->log( "view::render()" );
 
 
         // render
         $this->pebug->timer_start("render");
-        $output = $this->twig->render($twigTemplate, $this->variables);
+        try {
+            $output = $this->twig->render($twigTemplate, $this->variables);
+        } catch(Exception $e) {
+            $this->pebug->error("view::render(): Error: ".$e->getMessage());
+        }
         $this->pebug->timer_stop("render");
 
 
