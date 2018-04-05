@@ -28,7 +28,7 @@ class database {
             return;
         }
 
-        $expected = ['host', 'name', 'port', 'user', 'pass'];
+        $expected = ['host', 'name', 'port', 'user'];
         foreach($expected as $parameter) {
             if(empty($configData[$parameter]))
                 $this->pebug->error("database::__construct(): {$parameter} is not set! ");
